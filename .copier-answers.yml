@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier
+_commit: v2.0.1
+_src_path: gh:lincc-frameworks/python-project-template
+author_email: kovacs@anl.gov
+author_name: Eve Kovacs
+custom_install: false
+package_name: diffaux
+project_license: BSD
+project_name: diffaux
+project_organization: ArgonneCPAC
