@@ -1,5 +1,7 @@
 # diffaux
 
+Auxiliary Modeling for Diffsky Galaxies
+
 [![Template](https://img.shields.io/badge/Template-LINCC%20Frameworks%20Python%20Project%20Template-brightgreen)](https://lincc-ppt.readthedocs.io/en/latest/)
 
 [![PyPI](https://img.shields.io/pypi/v/diffaux?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/diffaux/)
@@ -28,6 +30,7 @@ create and activate a new environment.
 >> conda create env -n <env_name> python=3.10
 >> conda activate <env_name>
 ```
+
 
 Once you have created a new environment, you can install this project for local
 development using the following commands:
