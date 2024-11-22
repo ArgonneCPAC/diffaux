@@ -1,0 +1,9 @@
+#\caption{Fit results of the redshift evolution of median sizes as parametrized in Equations \ref{Eq:Fit_eq} a#nd \ref{Eq:Fit_#Values in the table represent the median and 16-84 percentiles of $10\,000$ fits per#formed on the median sizes in redshift b#ins presented in Table \ref{tab:med_sizes} sampled from their Gaussia#n distribution with \sigma equal to the statistical unc#ertainty.}
+#    & \multicolumn{2}{c|}{FULL SAMPLE} & \multicolumn{2}{c|}{STAR-FORMING} & \multicolumn{2}{c|}{QUIESCENT}\\
+#
+#M_lo M_hi M*med alpha_1_F da+ da-  beta_1_F db+ db-  alpha_1_SF da+ da- beta_1_SF db+ db- alpha_1_Q da+ da-  beta_1_Q db+ db-
+9.0 9.5    9.24  0.50 +0.01  -0.01  -0.68 +0.03  -0.03 0.53 +0.01 -0.01   -0.74 +0.02 -0.03   --  -- -- -- -- --
+9.5 10.0   9.72	 0.60 +0.01  -0.01  -0.73 +0.03  -0.03 0.67 +0.01  -0.01  -0.87 +0.03  -0.03 0.17 +0.12  -0.11  -0.40 +0.35  -0.37
+10.0 10.5 10.23	 0.50 +0.02  -0.02  -0.40 +0.06  -0.06 0.64 +0.02  -0.02  -0.62 +0.05  -0.05 0.40 +0.04  -0.04  -1.26 +0.13  -0.13
+10.5 11.0 10.71	 0.61 +0.03  -0.03  -0.84 +0.09  -0.09 0.69 +0.03  -0.03  -0.69 +0.10  -0.09 0.61 +0.03  -0.03  -1.29 +0.10  -0.10
+11.0 11.5 11.15	 0.88 +0.06  -0.06  -1.25 +0.19  -0.19 0.93 +0.10  -0.11  -1.16 +0.31 -0.31 0.95 +0.06  -0.06  -1.64 +0.19  -0.19

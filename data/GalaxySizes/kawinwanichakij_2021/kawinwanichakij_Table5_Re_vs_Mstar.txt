@@ -1,0 +1,26 @@
+\tablecaption{Best-fit Parameters of Power-law Fit to the  Size-Mass Relation for Quiescent and Star-forming Galaxies of the Form Gi\
+ven in Equation~\ref{eq:singlepwl} and \ref{eq:doublebrokenpwl}.}
+\tablehead{ \colhead{ Power-law model} & \colhead{ Subsample} & \colhead{$z_{\mathrm{med}}$} &   \colhead{$\alpha$} &  \colhead{$\be\
+ta$} &  \colhead{$r_{p}$(kpc)} & \colhead{ $\log(M_{p}/ M_{\odot})$} &   \colhead{$\sigma_{\log r}$ } & \colhead{Bayes-factor Eviden\
+ce ($\zeta$)}}
+\multirow{4}{*}{Double} & \multirow{4}{*}{Quiescent} & $0.3$ & $0.14\pm0.01$ &  $0.63\pm0.01$ & $2.1\pm0.0$ & $10.2\pm0.0$ & $0.15\p\
+m0.01$ & $8448.5$  \\
+  &  & $0.5$ & $0.10\pm0.01$ &  $0.63\pm0.01$ & $1.9\pm0.0$ & $10.3\pm0.0$ & $0.17\pm0.01$ & $45109.2$ \\
+  &  & $0.7$ & $0.10\pm0.01$ &  $0.67\pm0.01$ & $2.0\pm0.0$ & $10.5\pm0.0$ & $0.19\pm0.01$ & $9037.7$ \\
+  &  & $0.9$ & $0.13\pm0.01$ &  $0.68\pm0.01$ & $2.1\pm0.0$ & $10.6\pm0.0$ & $0.19\pm0.01$ & $3889.0$ \\
+\hline
+\multirow{4}{*}{Double} & \multirow{4}{*}{Star-forming} & $0.3$ & $0.17\pm0.01$ &  $0.62\pm0.02$ & $5.4\pm0.1$ & $10.6\pm0.0$ & $0.1\
+7\pm0.01$ & $8448.5$  \\
+  &  & $0.5$ & $0.18\pm0.01$ &  $0.39\pm0.01$ & $5.3\pm0.1$ & $10.6\pm0.0$ & $0.17\pm0.01$ & $45109.2$ \\
+  &  & $0.7$ & $0.16\pm0.01$ &  $0.27\pm0.01$ & $4.9\pm0.1$ & $10.7\pm0.0$ & $0.17\pm0.01$ & $9037.7$ \\
+  &  & $0.9$ & $0.19\pm0.01$ &  $0.29\pm0.02$ & $5.0\pm0.1$ & $10.8\pm0.0$ & $0.17\pm0.01$ & $3889.0$ \\
+\hline
+\multirow{4}{*}{Single} & \multirow{4}{*}{Quiescent} & $0.3$ & $0.34\pm0.01$ &  $-$ & $3.9\pm0.0$ & $-$ & $0.18\pm0.01$ \\
+  &  & $0.5$ & $0.36\pm0.01$ &  $-$ & $3.6\pm0.0$ & $-$ & $0.19\pm0.01$ &  $-$ \\
+  &  & $0.7$ & $0.41\pm0.01$ &  $-$ & $3.1\pm0.0$ & $-$ & $0.21\pm0.01$ &  $-$\\
+  &  & $0.9$ & $0.44\pm0.01$ &  $-$ & $2.7\pm0.0$ & $-$ & $0.21\pm0.01$ &  $-$ \\
+\hline
+\multirow{4}{*}{Single} & \multirow{4}{*}{Star-forming} & $0.3$ & $0.17\pm0.01$ &  $-$ & $5.4\pm0.0$ & $-$ & $0.17\pm0.01$ &  $-$\\
+  &  & $0.5$ & $0.20\pm0.01$ &  $-$ & $5.5\pm0.0$ & $-$ & $0.17\pm0.01$ &  $-$\\
+  &  & $0.7$ & $0.17\pm0.01$ &  $-$ & $5.0\pm0.0$ & $-$ & $0.16\pm0.01$ &  $-$\\
+  &  & $0.9$ & $0.20\pm0.01$ &  $-$ & $4.8\pm0.0$ & $-$ & $0.16\pm0.01$ &  $-$ \\

@@ -1,0 +1,8 @@
+#The redshift dependencies, parameterized by $r_{\rm eff} = B_z \times (1+z)^{-\beta_z}$, are also given.}
+#         B_z  dB_z beta_z dbeta_z B_z  dB_z beta_z dbeta_z B_z  dB_z   beta_z dbeta_z   
+M*med   ALL         	   	   Star Forming             Quiescent
+10      3.7  0.2    0.2   0.1     5.1  0.2   0.4 0.1      2.5   0.1    0.9   0.1
+10.5    4.6  0.2    0.2   0.2     6.3 0.2    0.5  0.1     4.1  0.2     1.1   0.1
+11      9.7   0.3   1.0   0.1     11.0  0.3  0.9 0.03     8.8   0.5    1.3  0.1
+11.3    11.5  0.7   0.4   0.1     20.2  1.1  1.2  0.1     11.2   0.7   0.7  0.1
+11.43   13.4  0.5   0.95  0.05    25.4  1.6  1.40  0.07   13.7   1.3   1.09  0.15

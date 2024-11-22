@@ -1,0 +1,26 @@
+#\tablecaption{Median Sizes of Galaxies as a Function of Galaxy Mass and Redshift, and Redshift Dependencies,
+#Parameterized by $R_{e}=B_{z}\times(1+z)^{-\beta_{z}}$}
+#\tablehead{ \colhead{Median Stellar mass} & \colhead{$z_{\mathrm{med}}$} & \colhead{All Median $R_{e}$(kpc)} && \colhead{Quiescent Median $R_{#e}$(kpc)} & & \colhead{Star-forming Median  R_{e} (kpc)} \\}
+#M*lo M*hi zmed All Med Re (kpc) dRe Quiescent Re dRe Star-forming Re dRe
+9.8 10.2     0.3      3.47    0.01       2.15    0.01       3.75    0.01   
+9.8 10.2     0.5      3.47    0.01       1.82    0.01       3.81    0.01  
+9.8 10.2     0.7      3.40    0.01       1.93    0.01       3.66    0.01  
+9.8 10.2     0.9      3.37    0.00       2.29    0.02       3.43    0.00  
+10.2 10.8     0.3      3.79    0.01       3.27    0.01       4.37    0.02   
+10.2 10.8     0.5      3.88    0.01       2.78    0.01       4.67    0.01  
+10.2 10.8     0.7      3.57    0.01       2.42    0.01       4.31    0.01  
+10.2 10.8     0.9      3.62    0.01       2.34    0.01       4.07    0.01  
+10.8 11.2    0.3      6.18    0.02       6.01    0.03       6.96    0.06   
+10.8 11.2    0.5      5.48    0.01       5.04    0.02       6.24    0.02  
+10.8 11.2    0.7      4.66    0.01       4.27    0.01       5.36    0.02  
+10.8 11.2    0.9      4.19    0.01       3.69    0.01       4.91    0.02  
+11.2 12.5     0.3      10.48    0.13     10.45    0.14       10.76    0.32   
+11.2 12.5     0.5      8.97    0.07       8.97    0.08       8.94    0.15  
+11.2 12.5     0.7      7.36    0.04       7.38    0.05       7.36    0.07  
+11.2 12.5     0.9      6.41    0.04       6.37    0.04       6.57    0.09  
+
+#M*lo M*hi    All Bz dBz  QuiescentBz dBz Star-formingBz dBz All beta_z dbetaz  Quiescent betaz dbetaz Star-formingbetaz dbetaz 
+9.8 10.2      3.39    0.01   2.10    0.02       4.28    0.02      0.08    0.01       0.47    0.02       0.36    0.01  
+10.2 10.8     3.86    0.02   3.70    0.02       5.05    0.02      0.19    0.01       1.13    0.01       0.29    0.01  
+10.8 11.2     7.64    0.05   7.42    0.06       9.07    0.12      1.02    0.01       1.32    0.02       0.77    0.02  
+11.2 12.5     13.85   0.26  13.88    0.34       15.09   1.38      1.28    0.04       1.21    0.05       1.51    0.17  

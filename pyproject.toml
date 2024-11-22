@@ -14,7 +14,7 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
 ]
 
@@ -40,7 +40,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/diffaux/_version.py"
+write_to = "diffaux/_version.py"
+write_to_template = "__version__ = '{version}'\n"
+
+[tool.setuptools]
+include-package-data = true
+packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
+package-data = {diffaux = ["data/*", "tests/testing_data/*", "*/tests/testing_data/*"]}
+package-dir = {diffaux = "diffaux"}
 
 [tool.pytest.ini_options]
 testpaths = [

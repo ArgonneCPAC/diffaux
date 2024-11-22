@@ -1,0 +1,9 @@
+\Block{1   6}{Rest-frame 5000~\AA} \\
+\caption{The best-fitting parameters from the single power law SMR for SFGs and QGs in two rest-frame wavelengths (Equation \ref{eq:smr}). Uncertainties smaller than 0.005 are rounded as 0.00. The unit of R_0 is in kpc.}
+  zlo    zhi  median z dz    \alpha          R_0     \sigma_{\log{R_0}}       median z     \alpha     R_0     \sigma_{\log{R_0}}
+{SFGs}                                                                        {QGs}
+  0.1   0.3  0.23   0.00     0.20   0.02     5.76   0.23     0.21   0.01      0.25   0.01     0.73   0.08     4.18   0.19     0.21   0.01
+  0.3   0.45  0.36   0.00     0.24   0.01     5.74   0.11     0.21   0.00     0.37   0.00     0.67   0.04     3.36   0.08     0.21   0.01
+  0.45   0.6  0.53   0.00     0.19   0.01     5.32   0.09     0.22   0.00     0.53   0.00     0.69   0.04     3.10   0.09     0.23   0.01
+  0.6   0.75  0.69   0.00     0.18   0.01     5.35   0.07     0.22   0.00     0.69   0.00     0.68   0.03     2.90   0.06     0.24   0.01
+  0.75   0.9  0.84   0.00     0.17   0.01     5.01   0.06     0.22   0.00     0.84   0.00     0.67   0.03     2.64   0.05     0.24   0.01

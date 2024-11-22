@@ -1,0 +1,9 @@
+#\caption{The best-fit parameters for the redshift evolution of characteristic sizes at fixed stellar mass
+#for SFGs and QGs in two rest-frame wavelengths ($R_e = R_e^{0} (1+z)^\beta$).
+#{Rest-frame $3000$~\AA} 
+#log M  R_e^0 DR_E   \beta    dbeta   R_e^0  dR_e  \beta   dbeta
+#{SFGs}                                 QG
+ 9.7    3.62  0.39   0.03   0.24    --   --  	 --   --
+10.2    4.95  0.27   -0.11  0.12   --   --  	 --   --
+10.7    6.83  0.40   -0.26  0.13   5.06  0.64    -0.59  0.28 
+11.2    9.57  1.17   -0.45  0.27   9.68  0.58    -0.44  0.14   
