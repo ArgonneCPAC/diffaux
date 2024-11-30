@@ -16,6 +16,7 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
+	     'numpy',
 ]
 
 [project.urls]
@@ -35,7 +36,7 @@ dev = [
 [build-system]
 requires = [
     "setuptools>=62", # Used to build and package the Python project
-    "setuptools_scm>=6.2", # Gets release version from git. Makes it available programmatically
+    "setuptools_scm>=8.0", # Gets release version from git. Makes it available programmatically
 ]
 build-backend = "setuptools.build_meta"
 
@@ -44,10 +45,21 @@ write_to = "diffaux/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
 [tool.setuptools]
-include-package-data = true
-packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
-package-data = {diffaux = ["data/*", "tests/testing_data/*", "*/tests/testing_data/*"]}
+#packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
 package-dir = {diffaux = "diffaux"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["./"]
+namespaces = false
+exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
+
+[tool.setuptools.package-data]
+"diffaux" = [
+ 	    "data/GalaxySizes/*/*.txt",
+	    "tests/testing_data/*.txt",
+	    "*/tests/testing_data/*.txt",
+	    ]
 
 [tool.pytest.ini_options]
 testpaths = [

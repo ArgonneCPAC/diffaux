@@ -6,12 +6,10 @@ validation_info dictionary supplies information for reading and plotting validat
 
 import numpy as np
 import os
-import importlib.resources
-from .plot_size_data import plot_Re_vs_Mstar_data, plot_Re_vs_z_Mstar_fits
+from importlib.resources import files
+from .plot_size_data import plot_Re_vs_z_Mstar_data, plot_Re_vs_z_Mstar_fits
 
-#SIZE_DATA_DIR = importlib.resources.path("diffaux", "data/GalaxySizes")
-SIZE_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data/GalaxySizes')
-print(SIZE_DATA_DIR)
+SIZE_DATA_DIR = files('diffaux').joinpath('data/GalaxySizes')
 
 def get_author_list(val_info, lambda_min=0.0, lambda_max=2.0):
     authors = []
@@ -41,6 +39,7 @@ def read_Re_vs_Mstar_data(tmp, data, author, validation_info, sample=''):
         zhi = zlo + v['dz']
         #print(n, zlo, zhi)
         zlabel = '${:.1f} \\leq z < {:.1f}$'.format(zlo, zhi)
+        print('Processing {}'.format(zlabel))
         if zlabel not in data.keys(): data[zlabel] = {}
         for i, colname  in enumerate(v['data_colnames']):
             col = len(v['M*_columns']) + i + n*len(v['data_colnames'])
@@ -58,9 +57,9 @@ def read_Re_vs_z_data(tmp, data, author, validation_info):
     if 'format' in v.keys() and 'M*_by_row' in v['format']:
         for row, name in zip(v['M*_rows'], v['M*_rownames']):
             data[name] = tmp[row][tmp[row]>validation_info['filling_values']]
-        #save colnames for later concatenation
+        #save colnames for later concatenation using last column in list
         M_old = v['M*_rownames'][-1]
-        M_new = validation_info['x-values']
+        M_new = validation_info['x-values'][-1]
         data[M_new] = np.asarray([])
         Mstars = np.unique(data[M_old])
         length = len(np.unique(data[M_old]))
@@ -217,11 +216,11 @@ def complete_data_values(data, author, validation_info, samples=''):
 validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                        'filling_values': 0.0,
                                        'reader': read_Re_vs_Mstar_data,
-                                       'plotter': plot_Re_vs_Mstar_data,
+                                       'plotter': plot_Re_vs_z_Mstar_data,
                                        'xlabel': '$\\bm{\\log_{10}(M^*/M_\\odot)}$',
                                        'ylabel': '$\\bm{R_{e} (\\mathrm{kpc})}$',
                                        'lgnd_label': '$\\bm{R_e}$',
-                                       'x-values': 'M*_med_{}',
+                                       'x-values': ['M*_med_{}'],
                                        'y-values': ['Re_{}'],
                                        'y-errors+': ['dRe_{}+'],
                                        'y-errors-': ['dRe_{}-'],
@@ -341,11 +340,11 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                    'Re_vs_z_data': {'missing_values': '--',
                                     'filling_values': 0.0,
                                     'reader': read_Re_vs_z_data,
-                                    'plotter': plot_Re_vs_Mstar_data,
+                                    'plotter': plot_Re_vs_z_Mstar_data,
                                     'xlabel': '$\\bm{\\log_{10}(M^*/M_\\odot)}$',
                                     'ylabel': '$\\bm{R_{e}^{med} (\\mathrm{kpc})}$',
                                     'lgnd_label': '$\\bm{R_e^{med}}$',
-                                    'x-values': 'M*_med',
+                                    'x-values': ['M*_med'],
                                     'y-values': ['Re_med_{}'],
                                     'z-values': 'z_med',
                                     'y-errors+': ['dRe_med_{}+'],

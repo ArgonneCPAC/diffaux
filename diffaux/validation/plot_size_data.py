@@ -1,21 +1,34 @@
+import numpy as np
+import matplotlib
+matplotlib.rc('text.latex', preamble=r'\usepackage{bm}')
+import matplotlib.pyplot as plt
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica"
+})
 from scipy.stats import binned_statistic
 from itertools import zip_longest
 from diffaux.validation.plot_utilities import get_nrow_ncol, save_fig, fix_plotid
 
-PLOT_DRN = 'SizePlots'
+PLOT_DRN = './SizePlots'
 
-def plot_Re_vs_Mstar_data(data, author, validation_info, plotdir=PLOT_DRN,
-                         pltname='log10Re_vs_Mstar_{}.png', samples=None,
-                         fig=None, ax_all=None,
-                         summary_fig=None, summary_ax=None, save_summary=False, summary_only=False):
+def plot_Re_vs_z_Mstar_data(data, author, validation_info, plotdir=PLOT_DRN,
+                            pltname='log10Re_vs_Mstar_{}.png', samples=None,
+                            fig=None, ax_all=None,
+                            summary_fig=None, summary_ax=None, save_summary=False, summary_only=False):
 
-    zkeys = [k for k in data.keys() if 'z' in k]
+    if 'z-values' not in validation_info.keys():
+        zkeys = [k for k in data.keys() if 'z' in k]
+    else:
+        zcol = validation_info['z-values']
+        zvalues = np.unique(data[zcol])
+        zkeys =['z = {:.2f}'.format(z) for z in zvalues]
+        
     nrow, ncol = get_nrow_ncol(len(zkeys))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
 
     for ax, zlabel in zip(ax_all.flat, zkeys):
         samples =  validation_info[author]['samples'] if samples is None else samples
-        v = data[zlabel]
         for sample in samples:
             idx = validation_info[author]['samples'].index(sample)
             color = validation_info[author]['colors'][idx]
@@ -23,27 +36,38 @@ def plot_Re_vs_Mstar_data(data, author, validation_info, plotdir=PLOT_DRN,
                                           validation_info['y-errors+'],
                                           validation_info['y-errors-'],
                                          ): # so far these are 1-entry lists
-                xcol = validation_info['x-values'].format(sample)
+                xcol = validation_info['x-values'][-1].format(sample) #also a 1-entry list
                 ycol = ycol.format(sample)
-                mask = v[xcol] > 0.
-                if np.count_nonzero(mask) > 0:
-                    ax.plot(v[xcol][mask], v[ycol][mask], color=color, label=sample)
-                    y_upper = v[ycol][mask] + v[yerrp.format(sample)][mask]
-                    y_lower = v[ycol][mask] - v[yerrn.format(sample)][mask]
-                    ax.fill_between(v[xcol][mask], y_lower, y_upper,
-                                    facecolor=color, alpha=0.2)
+                v = data[zlabel] if 'z-values' not in validation_info.keys() else data
+
+                if xcol in v.keys() and ycol in v.keys():
+                    if 'z-values' not in validation_info.keys():
+                        mask = v[xcol] > 0.	
+                    else:
+                        zval_mask = (data[zcol] == zvalues[zkeys.index(zlabel)])
+                        mask = (v[xcol] > 0.) & zval_mask
+                        
+                    if np.count_nonzero(mask) > 0:
+                        ax.plot(v[xcol][mask], v[ycol][mask], color=color, label=sample)
+                        y_upper = v[ycol][mask] + v[yerrp.format(sample)][mask]
+                        y_lower = v[ycol][mask] - v[yerrn.format(sample)][mask]
+                        ax.fill_between(v[xcol][mask], y_lower, y_upper,
+                                        facecolor=color, alpha=0.2)
+        
         ax.set_xlabel(validation_info['xlabel'])
         ax.set_ylabel(validation_info['ylabel'])
         ax.legend(loc='best')
         ax.set_title(zlabel)
 
-    #not used but save code
-    if 'M*_lo' in validation_info[author]['M*_colnames'] and 'M*_hi' in validation_info[author]['M*_colnames']:
-        idx_lo = validation_info[author]['M*_colnames'].index('M*_lo')
-        idx_hi = validation_info[author]['M*_colnames'].index('M*_hi')
-        for Mlo, Mhi in zip(data[validation_info[author]['M*_colnames'][idx_lo]],
-                        data[validation_info[author]['M*_colnames'][idx_hi]]):
-            Mlabel = '${:.1f} \\leq \\log10(M^*/M_\\odot) < {:.1f}$'.format(Mlo, Mhi)
+    #not used for now but save code
+    if 'M*_colnames' in validation_info[author].keys():
+        if 'M*_lo' in validation_info[author]['M*_colnames'] and 'M*_hi' in validation_info[author]['M*_colnames']:
+            idx_lo = validation_info[author]['M*_colnames'].index('M*_lo')
+            idx_hi = validation_info[author]['M*_colnames'].index('M*_hi')
+            Mlabels = []
+            for Mlo, Mhi in zip(data[validation_info[author]['M*_colnames'][idx_lo]],
+                                data[validation_info[author]['M*_colnames'][idx_hi]]):
+                Mlabels.append('${:.1f} \\leq \\log10(M^*/M_\\odot) < {:.1f}$'.format(Mlo, Mhi))
         
     fig.tight_layout()
     fig.suptitle(validation_info[author]['suptitle'], y=1.01)
@@ -131,10 +155,11 @@ def plot_Re_vs_z_Mstar_fits(data, author, validation_info, plotdir=PLOT_DRN,
     return summary_fig, summary_ax
 
 
-def plot_size_data(data, validation_info, authors, info_keys = ['Re_vs_Mstar', 'Re_vs_z'],
+def plot_size_data(data, validation_info, authors, info_keys = [], plotdir=PLOT_DRN,
                    summary_only=False, plttype='.png', fits={}, xpltname='',):
     sum_fig = None
     sum_ax = None
+    info_key = data.keys() if not info_keys else info_keys 
     for author in authors:
         for key in info_keys:
             plotter = validation_info[key]['plotter']
@@ -142,7 +167,7 @@ def plot_size_data(data, validation_info, authors, info_keys = ['Re_vs_Mstar', '
             pltname = pltname + plttype
             if key in data.keys() and author in data[key].keys():
                 save_summary = (author == authors[-1])
-                sum_fig, sum_ax = plotter(data[key][author], author, validation_info[key],
+                sum_fig, sum_ax = plotter(data[key][author], author, validation_info[key], plotdir=plotdir,
                                           pltname='{}_{{}}'.format(key), summary_only=summary_only,
                                           summary_fig=sum_fig, summary_ax=sum_ax, save_summary=save_summary)
 
