@@ -6,9 +6,7 @@ plt.rcParams.update({
     "text.usetex": True,
     "font.family": "Helvetica"
 })
-from scipy.stats import binned_statistic
-from itertools import zip_longest
-from diffaux.validation.plot_utilities import get_nrow_ncol, save_fig, fix_plotid
+from .plot_utilities import get_nrow_ncol, save_fig, fix_plotid
 
 PLOT_DRN = './SizePlots'
 
@@ -36,7 +34,7 @@ def plot_Re_vs_z_Mstar_data(data, author, validation_info, plotdir=PLOT_DRN,
                                           validation_info['y-errors+'],
                                           validation_info['y-errors-'],
                                          ): # so far these are 1-entry lists
-                xcol = validation_info['x-values'][-1].format(sample) #also a 1-entry list
+                xcol = validation_info['x-values'].format(sample) 
                 ycol = ycol.format(sample)
                 v = data[zlabel] if 'z-values' not in validation_info.keys() else data
 
@@ -105,7 +103,7 @@ def plot_Re_vs_z_Mstar_fits(data, author, validation_info, plotdir=PLOT_DRN,
             ycol = yvalue.format(sample)
             lower_error = np.abs(data[yerr_p.format(sample)])
             upper_error = np.abs(data[yerr_m.format(sample)])
-            xcol = validation_info['x-values'][0].format(sample) #this is a list of length one
+            xcol = validation_info['x-values'].format(sample)
             #mask for missing values
             mask = np.abs(data[ycol]) > 0.
             #print(asymmetric_error)
@@ -171,89 +169,4 @@ def plot_size_data(data, validation_info, authors, info_keys = [], plotdir=PLOT_
                                           pltname='{}_{{}}'.format(key), summary_only=summary_only,
                                           summary_fig=sum_fig, summary_ax=sum_ax, save_summary=save_summary)
 
-    return
-
-
-def plot_generated_sizes(Re, R_med, color_gal, log_Mstar, redshift, 
-                         samples, authors, data, val_info, 
-                         z_lo=0., z_hi=3.0, Nz=7, logM_lo=9.0, logM_hi=12.0, NM=6,
-                         plotdir=PLOT_DRN, fontsize=12,
-                         pltname='GalaxySizes_vs_Mstar_zbins_{}.png'):
-
-    #logM_bins = np.linspace(np.floor(log_Mstar), np.ceil(log_Mstar)
-    z_bins = np.linspace(z_lo, z_hi, Nz)
-    nrow, ncol = get_nrow_ncol(len(z_bins))
-    pt_colors = ('royalblue', 'tomato') #for simple plot
-    med_colors = ('blue', 'red')
-    
-    fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
-    for ax, z_min, z_max in zip_longest(ax_all.flat, z_bins[0:-1], z_bins[1:]):
-        if z_min is None:
-            ax.set_visible(False)
-            continue
-        zmask = (redshift >= z_min) & (redshift < z_max)
-        for sample, pcolor, med_color in zip(samples, pt_colors, med_colors):
-            cmask = get_color_mask(color_gal, sample)
-            mask = zmask & cmask
-            ztitle = '${:.1f} \\leq z < {:.1f}$'.format(z_min, z_max)
-            ax.scatter(log_Mstar[mask], Re[mask], color=pcolor, alpha=0.4, label=sample)
-            # profile plot of Mstar vs R_med
-            
-            result = binned_statistic(log_Mstar[mask], [R_med[mask], R_med[mask]**2], bins=NM,
-                                                  range=(logM_lo, logM_hi), statistic='mean')
-            means, means2 = result.statistic
-            std_dev = np.sqrt(means2 - means**2)
-            bin_edges = result.bin_edges
-            bin_centers = (bin_edges[:-1] + bin_edges[1:])/2.
-            ax.plot(bin_centers, means, color=med_color, label='{} $\\bm{{R_e^{{med}} }}$'.format(sample),
-                    linewidth=3)
-            for author in authors:
-                if ztitle not in data[author].keys() and 'z-values' not in val_info.keys():
-                    print('..Skipping bin {} for {}: no data'.format(ztitle, author))
-                    continue
-                if ztitle in data[author].keys(): #choose sub-dict
-                    v = data[author][ztitle]
-                else: # create mask if no subdict
-                    v = data[author]
-                    zcol = val_info['z-values']
-                    zval_mask = (v[zcol] >= z_min) & (v[zcol] < z_max)
-                idx = val_info[author]['samples'].index(sample)
-                dcolor = val_info[author]['colors'][idx]
-                for ycol, yerrp, yerrn in zip(val_info['y-values'],
-                                              val_info['y-errors+'],
-                                              val_info['y-errors-'],
-                                                 ): # so far these are 1-entry lists
-                    xcol = val_info['x-values'].format(sample)
-                    ycol = ycol.format(sample)
-                    mask = v[xcol] > 0.
-                    #print(np.count_nonzero(zval_mask), np.count_nonzero(mask))
-                    if ztitle not in data[author].keys(): mask = mask & zval_mask
-                    if np.count_nonzero(mask) > 0:
-                        
-                        label = '{} {} ({} ${}\\mu m$)'.format(sample, val_info['lgnd_label'],
-                                                             val_info[author]['short_title'],
-                                                             val_info[author]['wavelength'])
-                        #label = '{} {}'.format(val_info['lgnd_label'], sample)
-                        if ztitle in data[author].keys():
-                            ax.plot(v[xcol][mask], v[ycol][mask], color=dcolor, label=label)
-                            y_upper = v[ycol][mask] + v[yerrp.format(sample)][mask]
-                            y_lower = v[ycol][mask] - v[yerrn.format(sample)][mask] 
-                            ax.fill_between(v[xcol][mask], y_lower, y_upper,
-                                        facecolor=dcolor, alpha=0.2)
-                        else:
-                            ax.errorbar(v[xcol][mask], v[ycol][mask], yerr=v[yerrp.format(sample)][mask],
-                                        color=dcolor, label=label, linestyle='',
-                                        marker=val_info[author]['marker'])
-                        
-            ax.legend(loc='best')
-            ax.set_title(ztitle)
-            ax.set_xlabel(val_info['xlabel'])
-            ax.set_ylabel(val_info['ylabel'])
-    short_titles = [val_info[author]['short_title'] for author in authors]
-    author_list = '_'.join(authors)
-    title_list = '+'.join(short_titles)
-    fig.suptitle('Generated Sizes and {} Data'.format(title_list), y=0.92,
-                 fontweight="bold")
-    save_fig(fig, plotdir, pltname.format(author_list)) 
-            
     return

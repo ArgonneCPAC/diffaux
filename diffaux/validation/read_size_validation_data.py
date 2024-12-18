@@ -55,11 +55,11 @@ def read_Re_vs_z_data(tmp, data, author, validation_info):
     # collect M* columns 
     v = validation_info[author]
     if 'format' in v.keys() and 'M*_by_row' in v['format']:
-        for row, name in zip(v['M*_rows'], v['M*_rownames']):
-            data[name] = tmp[row][tmp[row]>validation_info['filling_values']]
-        #save colnames for later concatenation using last column in list
-        M_old = v['M*_rownames'][-1]
-        M_new = validation_info['x-values'][-1]
+        row = v['M*_rows']
+        data[v['M*_rownames']] = tmp[row][tmp[row]>validation_info['filling_values']]
+        #save colnames for later concatenation
+        M_old = v['M*_rownames']
+        M_new = validation_info['x-values']
         data[M_new] = np.asarray([])
         Mstars = np.unique(data[M_old])
         length = len(np.unique(data[M_old]))
@@ -70,7 +70,7 @@ def read_Re_vs_z_data(tmp, data, author, validation_info):
     for col, z_name in zip(v['z_columns'], v['z_colnames']):
         if 'format' in v.keys() and 'M*_by_row' in v['format']:
             #save colnames for later concatenation (since only one z column in data)
-            data[z_name] = tmp[len(v['M*_rows']):, col]
+            data[z_name] = tmp[v['M*_rows']+1:, col]
             z_new = validation_info['z-values']
             data[z_new] = np.asarray([])
         else:
@@ -87,7 +87,7 @@ def read_Re_vs_z_data(tmp, data, author, validation_info):
                     if colname not in data.keys():
                         data[colname] = np.asarray([])
                     #concatenate data columns
-                    data[colname] = np.concatenate((data[colname], tmp[len(v['M*_rows']):, col]))
+                    data[colname] = np.concatenate((data[colname], tmp[v['M*_rows']+1:, col]))
                     #concatenate z amd M* arrays
                     if i==0 and n==0: 
                         data[z_new] = np.concatenate((data[z_new], data[z_name]))
@@ -139,12 +139,11 @@ def complete_data_values(data, author, validation_info, samples=''):
     if not samples: samples= v['samples']
     if type(samples) is str: samples = [samples]
     for sample in samples:
-        for n, xval in enumerate(validation_info['x-values']):
-            xval = xval.format(sample)
-            if xval not in data.keys() and 'copy_from_common' in v.keys() and v['copy_from_common']:
-                old_x = v['copy_columns'][n]
-                data[xval] = data[old_x]
-                print('..Copying {} to {}'.format(old_x, xval))
+        xval = validation_info['x-values'].format(sample)
+        if xval not in data.keys() and 'copy_from_common' in v.keys() and v['copy_from_common']:
+            old_x = v['copy_columns']
+            data[xval] = data[old_x]
+            print('..Copying {} to {}'.format(old_x, xval))
                 
         for n, (yval, yerr_p, yerr_n) in enumerate(zip(validation_info['y-values'],
                                                        validation_info['y-errors+'],    
@@ -212,6 +211,9 @@ def complete_data_values(data, author, validation_info, samples=''):
                     
     return data
 
+"""
+Dictionary to supply information for reading and plotting validation data for size modeling
+"""
 
 validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                        'filling_values': 0.0,
@@ -220,12 +222,12 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                        'xlabel': '$\\bm{\\log_{10}(M^*/M_\\odot)}$',
                                        'ylabel': '$\\bm{R_{e} (\\mathrm{kpc})}$',
                                        'lgnd_label': '$\\bm{R_e}$',
-                                       'x-values': ['M*_med_{}'],
+                                       'x-values': 'M*_med_{}',
                                        'y-values': ['Re_{}'],
                                        'y-errors+': ['dRe_{}+'],
                                        'y-errors-': ['dRe_{}-'],
                                        'martorano_2024': {
-                                           'samples': ['All', 'Star-forming', 'Quiescent'],
+                                           'samples': ['All', 'Starforming', 'Quiescent'],
                                            'colors': ['black', 'darkslateblue', 'firebrick'],
                                            'filename': 'martorano_2024_table1_Mstar_log10Re_{}.txt',
                                            'skip_header': 10,
@@ -258,9 +260,9 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                     'ylabels': ['$\\bm{A}$ (kpc)', r'$\bm\alpha$'],
                                     'titles': ['$\\bm{{A}}$: $\\bm{{R_e = A*(M^*/({} \\times 10^{{10}}M_\\odot))^{{\\alpha}}}}$',
                                                '$\\bm{{\\alpha}}$: $\\bm{{R_e = A*(M^*/({} \\times 10^{{10}}M_\\odot))^{{\\alpha}}}}$'],
-                                    'x-values': ['z_med_{}'],
+                                    'x-values': 'z_med_{}',
                                     'kawinwanichakij_2021': {
-                                                 'samples': ['Quiescent', 'Star-forming'],
+                                                 'samples': ['Quiescent', 'Starforming'],
                                                  'colors': ['firebrick', 'royalblue'],
                                                  'filename': 'kawinwanichakij_Table5b_Re_vs_Mstar_fits.txt',
                                                  'skip_header': 4,
@@ -270,14 +272,14 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                                  'data_colnames': ['alpha_{}', 'dalpha_{}+', 'A_{}', 'dA_{}+',
                                                                    'sigma_{}',  'dsigma_{}+'],
                                                  'copy_from_common': True,
-                                                 'copy_columns': ['z_med'],
+                                                 'copy_columns': 'z_med',
                                                  'marker': 'D', 
                                                  'wavelength': 0.5,
                                                  'short_title': 'HSC',
                                                  'suptitle': 'Kawinwanichakij et. al. 2021, HSC',
                                                 },
                                    'mowla_2019': {
-                                                 'samples': ['All', 'Star-forming', 'Quiescent'],
+                                                 'samples': ['All', 'Starforming', 'Quiescent'],
                                                  'colors': ['black', 'mediumblue', 'crimson'],
                                                  'filename': 'mowla_2019_Table2_Re_vs_Mstar_fits.txt',
                                                  'skip_header': 4,
@@ -295,14 +297,14 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                                  'M_p_power_column': 1,
                                                  'M_p_label': '_M_p_rescaled',
                                                  'copy_from_common': True,
-                                                 'copy_columns': ['z_med'],
+                                                 'copy_columns': 'z_med',
                                                  'marker': 'o',
                                                  'wavelength': 0.55,
                                                  'short_title': 'COSMOS-DASH',
                                                  'suptitle': 'Mowla et al. 2019, COSMOS-DASH',
                                                  },
                                    'george_2024_3000': {
-                                                        'samples': ['Star-forming', 'Quiescent'],
+                                                        'samples': ['Starforming', 'Quiescent'],
                                                         'colors': ['mediumslateblue', 'crimson'],
                                                         'filename': 'George_2024_Table2_3000_Re_vs_Mstar_fits.txt',
                                                         'skip_header': 4,
@@ -319,7 +321,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                                         'suptitle': 'George et. al. 2024, CLAUDS+HSC',
                                                        },
                                    'george_2024_5000': {
-                                                        'samples': ['Star-forming', 'Quiescent'],
+                                                        'samples': ['Starforming', 'Quiescent'],
                                                         'colors': ['mediumslateblue', 'crimson'],
                                                         'filename': 'George_2024_Table2_5000_Re_vs_Mstar_fits.txt',
                                                         'skip_header': 4,
@@ -344,19 +346,19 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                     'xlabel': '$\\bm{\\log_{10}(M^*/M_\\odot)}$',
                                     'ylabel': '$\\bm{R_{e}^{med} (\\mathrm{kpc})}$',
                                     'lgnd_label': '$\\bm{R_e^{med}}$',
-                                    'x-values': ['M*_med'],
+                                    'x-values': 'M*_med',
                                     'y-values': ['Re_med_{}'],
                                     'z-values': 'z_med',
                                     'y-errors+': ['dRe_med_{}+'],
                                     'y-errors-': ['dRe_med_{}-'],
                                     'mowla_2019': {
-                                                 'samples': ['All', 'Star-forming', 'Quiescent'],
+                                                 'samples': ['All', 'Starforming', 'Quiescent'],
                                                  'colors': ['black', 'mediumblue', 'crimson'],
                                                  'filename': 'mowla_2019_Table3_Re_vs_z_data.txt',
                                                  'skip_header': 4,
                                                  'format': 'M*_by_row',
-                                                 'M*_rownames': ['M*_med_row'],
-                                                 'M*_rows': [0],
+                                                 'M*_rownames': 'M*_med_row',
+                                                 'M*_rows': 0,
                                                  'z_colnames': ['z_med_row'],
                                                  'z_columns': [0],
                                                  'data_colnames': ['Re_med_{}', 'dRe_med_{}+'],
@@ -366,7 +368,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                                  'suptitle': 'Mowla et al. 2019, COSMOS-DASH',
                                                  },
                                    'kawinwanichakij_2021': {
-                                                 'samples': ['All', 'Quiescent', 'Star-forming'],
+                                                 'samples': ['All', 'Quiescent', 'Starforming'],
                                                  'colors': ['black', 'firebrick', 'royalblue'],
                                                  'filename': 'kawinwanichakij_Table6a_Re_median_vs_z.txt',
                                                  'skip_header': 2,
@@ -388,7 +390,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                'filling_values': 0.0,
                                'reader': read_Re_vs_z_Mstar_fits,
                                'plotter': plot_Re_vs_z_Mstar_fits,
-                               'x-values': ['M*med'],
+                               'x-values': 'M*med',
                                'y-values': ['B_{}','beta_{}'], 
                                'y-errors+': ['dB_{}+','dbeta_{}+'],
                                'y-errors-': ['dB_{}-','dbeta_{}-'],
@@ -400,7 +402,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                'xlabel': '$\\bm{z}$',
                                'ylabel': '$\\bm{\\log10(R_{e}}/\\mathrm{kpc})$',
                                'martorano_2024': {
-                                   'samples': ['All', 'Star-forming', 'Quiescent'],
+                                   'samples': ['All', 'Starforming', 'Quiescent'],
                                    'colors': ['black', 'darkslateblue', 'firebrick'],
                                    'filename': 'martorano_2024_table2_Re_vs_z.txt',
                                    'skip_header': 4,
@@ -421,7 +423,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                    'suptitle': 'Martorano et. al. 2024, JWST+COSMOS',
                                                 },
                                'george_2024_3000': {
-                                   'samples': ['Star-forming', 'Quiescent'],
+                                   'samples': ['Starforming', 'Quiescent'],
                                    'colors': ['mediumslateblue', 'crimson'],
                                    'filename': 'George_2024_Table3a_3000_Re_vs_z.txt',
                                    'skip_header': 5,
@@ -438,7 +440,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                    'suptitle': 'George et. al. 2024, CLAUDS+HSC',
                                                 },
                                'george_2024_5000': {
-                                   'samples': ['Star-forming', 'Quiescent'],
+                                   'samples': ['Starforming', 'Quiescent'],
                                    'colors': ['mediumslateblue', 'crimson'],
                                    'filename': 'George_2024_Table3b_5000_Re_vs_z.txt',
                                    'skip_header': 5,
@@ -455,7 +457,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                    'suptitle': 'George et. al. 2024, CLAUDS+HSC',
                                                 }, 
                                'kawinwanichakij_2021': {
-                                   'samples': ['All', 'Quiescent', 'Star-forming'],
+                                   'samples': ['All', 'Quiescent', 'Starforming'],
                                    'colors': ['black', 'firebrick', 'royalblue'],
                                    'filename': 'kawinwanichakij_Table6b_Re_vs_z.txt',
                                    'skip_header': 2,
@@ -470,7 +472,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                    'suptitle': 'Kawinwanichakij et. al. 2021 -- HSC',
                                                 },
                                'mowla_2019': {
-                                         'samples': ['All', 'Star-forming', 'Quiescent'],
+                                         'samples': ['All', 'Starforming', 'Quiescent'],
                                          'colors': ['black', 'mediumblue', 'crimson'],
                                          'filename': 'mowla_2019_Table1b_3b_Re_vs_z.txt',
                                          'skip_header': 3,
@@ -483,7 +485,7 @@ validation_info = {'Re_vs_Mstar_data': {'missing_values': '--',
                                          'suptitle': 'Mowla et al. 2019, COSMOS-DASH',
                                              },
                                'vanderWel_2014': {
-                                         'samples': ['Star-forming', 'Quiescent'],
+                                         'samples': ['Starforming', 'Quiescent'],
                                          'colors': ['dodgerblue', 'orangered'],
                                          'filename': 'vanderWel_2014_table2_Re_vs_z.txt',
                                          'skip_header': 5,
