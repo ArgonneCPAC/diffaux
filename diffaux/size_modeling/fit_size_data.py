@@ -7,9 +7,9 @@ import pickle
 from scipy.optimize import curve_fit
 from collections import namedtuple
 from ..validation.read_size_validation_data import validation_info
+from importlib.resources import files
 
-
-FIT_DRN = 'FitResults'
+FIT_DRN = files('diffaux').joinpath('size_modeling/FitResults')
 
 
 def get_data_vector(data, val_info, sample='Starforming', lambda_min=0.5, lambda_max=1.0,

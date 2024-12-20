@@ -57,7 +57,7 @@ exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
 [tool.setuptools.package-data]
 "diffaux" = [
  	    "data/GalaxySizes/*/*.txt",
-	    "size_modeling/FitResults/*.pkl"
+	    "size_modeling/FitResults/*.pkl",
 	    "tests/testing_data/*.txt",
 	    "*/tests/testing_data/*.txt",
 	    ]

@@ -13,11 +13,12 @@ Auxiliary Modeling for Diffsky Galaxies
 This project was automatically generated using the LINCC-Frameworks 
 [python-project-template](https://github.com/lincc-frameworks/python-project-template).
 
-A repository badge was added to show that this project uses the python-project-template, however it's up to
-you whether or not you'd like to display it!
 
-For more information about the project template see the 
-[documentation](https://lincc-ppt.readthedocs.io/en/latest/).
+## Galaxy Size Modeling
+
+A description of the data and methods used for writing the code in this repository
+can be found [here](https://docs.google.com/document/d/1NYZ8EAOqi89DrQoV9Oz1EI30lIsl56kHoXQ3qygtc74/edit?usp=sharing)
+
 
 ## Dev Guide - Getting Started
 
