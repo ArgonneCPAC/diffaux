@@ -1,5 +1,5 @@
 """
-Test use facing functions
+Test user facing function
 """
 import os
 import numpy as np

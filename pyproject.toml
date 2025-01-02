@@ -64,8 +64,11 @@ exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
 
 [tool.pytest.ini_options]
 testpaths = [
-    "tests",
+            "tests",
+	    "*/tests/",
+	    "*/*/tests/",
 ]
+addopts = "--import-mode=importlib"
 
 [tool.black]
 line-length = 110
