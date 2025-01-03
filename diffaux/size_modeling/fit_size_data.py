@@ -1,4 +1,4 @@
-"""
+"""OA
 Module to assemble and fit trends in data vectors for selected data samples
 """
 import os
@@ -113,7 +113,13 @@ def fit_parameters(data_vectors, Xvalue, p0_values, func=_sigmoid,
     return fits
 
 
-def write_fit_parameters(fits, fn='{}_fit_parameters.pkl', fit_type='Re_vs_z', fitdir=FIT_DRN):
+def write_fit_parameters(fits, fn='{}_fit_parameters.pkl', fitdir=FIT_DRN):
+    """
+    write results of fitting validation data to pickle file for later use
+    fits: dict of fit results which is output by the function fit_parameters
+    fn: filename for pkl file
+    fitdir: directory name for plk file
+    """
     with open(os.path.join(fitdir, fn.format(fit_type)), "wb") as fh:
         pickle.dump(fits, fh)
 
@@ -122,6 +128,18 @@ def write_fit_parameters(fits, fn='{}_fit_parameters.pkl', fit_type='Re_vs_z', f
 
 def read_fit_parameters(namedtuple, fn='{}_fit_parameters.pkl', fit_type='Re_vs_z', fitdir=FIT_DRN,
                         fitval_key='popt'):
+    """
+    read fit parameters from pickle file
+    namedtuple: named tuple for fit parameters
+    fn: filename of pkl file
+    fit_type: fit type of fit parameters (key in fits dict); Re_vs_z is the only option so far
+    fitdir: directory name for plk file 
+    fitval_key: key in fits dict containing fit parameters
+
+    returns:
+    fit_pars: named tuple of fit parameters resulting from fitting validation data
+    fits: dict of fit results which is output by the function fit_parameters
+    """
     with open(os.path.join(fitdir, fn.format(fit_type)), "rb") as fh:
         fits = pickle.load(fh)
 
@@ -156,6 +174,21 @@ def get_color_mask(color, sample, UVJcolor_cut=1.5, UVJ=True):
 
 def get_median_sizes(fit_parameters, log_Mstar, redshift, color, Ngals, samples,
                      UVJcolor_cut=1.5, fit_func=_sigmoid, size_func=median_size_vs_z):
+    """
+    fit_parameters: named ntuple of fit parameters, which is read in using read_fit_parameters
+    log_Mstar: array of length (Ngals), log10(stellar masses) of galaxies in units of Msun                          
+    redshift: array of length Ngals, redshift of galaxies
+    color: array length Ngals, color of galaxies
+    Ngals: length of arrays stroing galaxy information 
+    samples: galaxy samples to process; sizes are generated for each sample
+    UVJcolor_cut: color cut that selects between galaxy samples
+    fit_func: function used by fit_parameters
+    size_func: function used to generate medisn size
+
+    returns
+    sizes: array length (Ngals), size in kpc
+    """
+
     R_med = np.zeros(Ngals) 
     #determine parameter values from fit_parameters
     for sample in samples:
@@ -180,10 +213,17 @@ def generate_sizes(fit_parameters, log_Mstar, redshift, color,
                    fit_func=_sigmoid, size_func=median_size_vs_z,
                    ):
     """
-    fit_parameters: named ntuple of fit parameters
-    log_Mstar: array length (Ngals), log10(stellar masses) of galaxies in units of Msun
-    redshift: array length Ngals, redshift of galaxies
+    fit_parameters: named ntuple of fit parameters, which is read in using read_fit_parameters
+    log_Mstar: array of length (Ngals), log10(stellar masses) of galaxies in units of Msun
+    redshift: array of length Ngals, redshift of galaxies
     color: array length Ngals, color of galaxies
+    samples: galaxy samples to process; sizes are generated for each sample
+    UVJcolor_cut: color cut that selects between galaxy samples
+    scatter_lo:  scatter in dex below median size
+    scatter_hi:  scatter in dex above median size
+    fit_func: function used by fit_parameters
+    size_func: function used to generate medisn size
+
 
     returns
     sizes: array length (Ngals), size in kpc
@@ -207,8 +247,10 @@ def generate_sizes(fit_parameters, log_Mstar, redshift, color,
 def assign_p0_values_to_fits(p0_values, fit_type='Re_vs_z'):
     """
     initialize fits dict with p0_values
-    fits: dictionary of fit parameters
+    p0_values: named tuple of values of fit parameters
 
+    returns
+    fits: dictionary of fit parameters
     """
     fits={}
     fits[fit_type] = {}
