@@ -65,13 +65,16 @@ def rename_columns(cosmos2020_gals, rename=[('_MAG', ''), ('lp_M', 'lp_M_')]):
     return cosmos2020_gals
 
 
-def add_cosmos2020_colors(cosmos2020, filter_names, filter_types, bands, minmax=False):
+def add_cosmos2020_colors(cosmos2020, filter_names,
+                          filter_types, bands, minmax=False):
 
     for fname, ftyp in zip(filter_names, filter_types):
         for b1, b2 in zip(bands[:-1], bands[1:]):
             c = b1 + '-' + b2 if ftyp == 'obs' else b1.upper() + '-' + b2.upper()
-            col1 = fname.format(b1) if ftyp == 'obs' else fname.format(b1.upper())
-            col2 = fname.format(b2) if ftyp == 'obs' else fname.format(b2.upper())
+            col1 = fname.format(
+                b1) if ftyp == 'obs' else fname.format(b1.upper())
+            col2 = fname.format(
+                b2) if ftyp == 'obs' else fname.format(b2.upper())
             if col1 in cosmos2020.colnames and col2 in cosmos2020.colnames:
                 colc = fname.format(c)
                 cosmos2020[colc] = cosmos2020[col1] - cosmos2020[col2]
@@ -101,7 +104,8 @@ def select_COSMOS2020_data(cosmos2020, keyname='COSMOS2020 ({})',
                            ):
 
     # compute colors
-    cosmos2020 = add_cosmos2020_colors(cosmos2020, filter_names, filter_types, bands)
+    cosmos2020 = add_cosmos2020_colors(
+        cosmos2020, filter_names, filter_types, bands)
 
     # make selections
     mask = np.ones(len(cosmos2020), dtype=bool)
@@ -120,7 +124,8 @@ def select_COSMOS2020_data(cosmos2020, keyname='COSMOS2020 ({})',
 def make_selections(cosmos2020, select, mask, bands, minimum=True):
 
     for b in bands:
-        key = select[0].format(b) if select[1] > 0 else select[0].format(b.upper())
+        key = select[0].format(
+            b) if select[1] > 0 else select[0].format(b.upper())
         if key in cosmos2020.colnames:
             if minimum:
                 dmask = (cosmos2020[key] >= select[1])

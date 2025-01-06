@@ -10,12 +10,13 @@ from diffaux.size_modeling.fit_size_data import generate_sizes
 
 TESTDATA_DRN = files('diffaux').joinpath('size_modeling/tests/testing_data')
 
-def test_generate_sizes(lM_lo = 9.0, lM_hi = 12.0, Nm=4, z_lo=0., z_hi=3.0, Nz=4,
+
+def test_generate_sizes(lM_lo=9.0, lM_hi=12.0, Nm=4, z_lo=0., z_hi=3.0, Nz=4,
                         color_SF=0.0, color_Q=2, testdata_dir=TESTDATA_DRN,
-                        UVJcolor_cut=1.5, scatter_hi=0.2, scatter_lo=0.2, read=True, 
+                        UVJcolor_cut=1.5, scatter_hi=0.2, scatter_lo=0.2, read=True,
                         fn='generate_sizes_test_data.txt', rtol=1e-4,
-                        variables=['logM', 'z'], types= ['SF', 'Q'],
-                        values = ['R_med_{}', 'scatter_up_{}', 'scatter_down_{}']):
+                        variables=['logM', 'z'], types=['SF', 'Q'],
+                        values=['R_med_{}', 'scatter_up_{}', 'scatter_down_{}']):
 
     vals = [v.format(t) for t in types for v in values]
     header = variables + vals
@@ -31,27 +32,26 @@ def test_generate_sizes(lM_lo = 9.0, lM_hi = 12.0, Nm=4, z_lo=0., z_hi=3.0, Nz=4
         z_values = np.linspace(z_lo, z_hi, Nz)
         z = np.repeat(z_values, Nm)
         logM = np.tile(logM_values, Nz)
-        
-    #read in fit parameters and generate new size data
+
+    # read in fit parameters and generate new size data
     results = {'logM': logM, 'z': z}
     fit_pars, _ = read_fit_parameters(zFitParameters)
     for color, t in zip([color_SF, color_Q], types):
-        _res = generate_sizes(fit_pars, logM, z, np.repeat(color, Nm*Nz),
+        _res = generate_sizes(fit_pars, logM, z, np.repeat(color, Nm * Nz),
                               samples=Samples_zFit, UVJcolor_cut=UVJcolor_cut,
                               scatter_hi=scatter_hi, scatter_lo=scatter_lo,
-                             )
+                              )
         for n, v in enumerate(values):
-            results[v.format(t)] = _res[n+1]
+            results[v.format(t)] = _res[n + 1]
 
-    #test or save median values
+    # test or save median values
     if read:
         for k in header[len(variables):]:
             test = np.isclose(results[k], test_data[k], rtol=rtol)
-            assert(np.all(test))
+            assert (np.all(test))
     else:
-        np.savetxt(filename, np.vstack(list(results[k] for k in results.keys())).T, fmt='%11.4e', 
-                                       header='    '.join(header))
+        np.savetxt(filename, np.vstack(list(results[k] for k in results.keys())).T, fmt='%11.4e',
+                   header='    '.join(header))
         print('Writing test data in {}'.format(filename))
 
-    return 
-
+    return

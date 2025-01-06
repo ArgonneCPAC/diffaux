@@ -44,7 +44,8 @@ def plot_mag_color(ax_all, dat, label, magbins=50, colbins=30, data_mask=None,
 
         if axis_label:
             b = q.split('_')[-1]
-            qlabel = '{}-frame ${}$'.format(frame, b) if '-' in q else mlabel.format(b)
+            qlabel = '{}-frame ${}$'.format(frame,
+                                            b) if '-' in q else mlabel.format(b)
             ax.set_xlabel(qlabel, fontsize=fsize)
             ylabel = '${}$'.format(b) if '-' in b else mlabel.format(b)
             ax.set_ylabel('P({})'.format(ylabel), fontsize=fsize)
@@ -57,7 +58,8 @@ def plot_y_vs_x(ax, x, y, x_bins, y_bins, xlabel=None, ylabel=None,
                 cmap='BuPu', contour=False, alphactr=0.8,
                 levels=[.05, .2, .5, .8], cntr_label='', cntr_color='black'):
 
-    qd, xedges, yedges = np.histogram2d(x, y, bins=(x_bins, y_bins), density=True)
+    qd, xedges, yedges = np.histogram2d(
+        x, y, bins=(x_bins, y_bins), density=True)
     qdmasked = np.ma.masked_where(qd.T == 0.0, qd.T)
     if not contour:
         hs = ax.pcolormesh(xedges, yedges, qdmasked, cmap=cmap)
@@ -142,10 +144,13 @@ def plot_color_redshift(t, zbins, colorbins, filters, frames=['rest', 'obs'],
     plotid = plotid + '_scatt' if scatter else plotid
     for f in filters:
         for fr in frames:
-            colorlist = [c for c in t.colnames if f in c and '-' in c and fr in c]
+            colorlist = [
+                c for c in t.colnames if f in c and '-' in c and fr in c]
             nrow, ncol = get_nrow_ncol(len(colorlist))
 
-            fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
+            fig, ax_all = plt.subplots(
+                nrow, ncol, figsize=(
+                    ncol * 7, nrow * 5))
             for ax, col in zip_longest(ax_all.flat, colorlist):
                 if col is not None:
                     maskz = (t[z] <= zbins[-1])
@@ -157,8 +162,10 @@ def plot_color_redshift(t, zbins, colorbins, filters, frames=['rest', 'obs'],
                         for zs in zsnaps[(zsnaps <= zbins[-1])]:
                             ax.axvline(zs, color='r', lw=0.7)
                     if scatter:
-                        Ngals, index = get_subsample(np.count_nonzero(maskz), N=Nsub)
-                        ax.scatter(t[z][maskz][index], t[col][maskz][index], s=1)
+                        Ngals, index = get_subsample(
+                            np.count_nonzero(maskz), N=Nsub)
+                        ax.scatter(
+                            t[z][maskz][index], t[col][maskz][index], s=1)
                     else:
                         plot_y_vs_x(
                             ax,

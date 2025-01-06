@@ -73,7 +73,11 @@ def check_colnames(fh_list, colnames):
 
 
 def get_catalog(input_dir, cutout, xtra_cols=['redshift', 'target_halo_mass']):
-    input_files = sorted(glob.glob(os.path.join(input_dir, fname.format(cutout))))
+    input_files = sorted(
+        glob.glob(
+            os.path.join(
+                input_dir,
+                fname.format(cutout))))
     fh_list = [h5py.File(i, 'r') for i in input_files]
     colnames = get_colnames(fh_list[0])
     filters = [c for c in colnames if 'LSST' in c or 'SDSS' in c]
