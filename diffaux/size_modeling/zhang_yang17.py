@@ -76,8 +76,7 @@ def median_size_vs_luminosity(magr, redshift, gamma, alpha, beta, mzero):
 
     """
     luminosity = 10 ** (-0.4 * (magr - mzero))
-    z0_size = gamma * (luminosity**alpha) * \
-        ((1.0 + luminosity) ** (beta - alpha))
+    z0_size = gamma * (luminosity**alpha) * ((1.0 + luminosity) ** (beta - alpha))
     shrinking_factor = redshift_shrinking_factor(redshift)
     size = z0_size / shrinking_factor
     size = np.where(size > MAX_SIZE, MAX_SIZE, size)
@@ -232,14 +231,7 @@ def mc_size_vs_luminosity_early_type(
     >>> redshift = np.random.uniform(0, 3, 500)
     >>> sizes = mc_size_vs_luminosity_early_type(magr, redshift)
     """
-    loc = np.log10(
-        median_size_vs_luminosity(
-            magr,
-            redshift,
-            gamma,
-            alpha,
-            beta,
-            mzero))
+    loc = np.log10(median_size_vs_luminosity(magr, redshift, gamma, alpha, beta, mzero))
     with NumpyRNGContext(seed):
         size = 10 ** np.random.normal(loc=loc, scale=scatter)
     size = np.where(size > MAX_SIZE, MAX_SIZE, size)
@@ -299,14 +291,7 @@ def mc_size_vs_luminosity_late_type(
     >>> redshift = np.random.uniform(0, 3, 500)
     >>> sizes = mc_size_vs_luminosity_late_type(magr, redshift)
     """
-    loc = np.log10(
-        median_size_vs_luminosity(
-            magr,
-            redshift,
-            gamma,
-            alpha,
-            beta,
-            mzero))
+    loc = np.log10(median_size_vs_luminosity(magr, redshift, gamma, alpha, beta, mzero))
     with NumpyRNGContext(seed):
         size = 10 ** np.random.normal(loc=loc, scale=scatter)
     size = np.where(size > MAX_SIZE, MAX_SIZE, size)
