@@ -1,6 +1,10 @@
 BSD 3-Clause License
 
+<<<<<<< before updating
 Copyright (c) 2024, ArgonneCPAC
+=======
+Copyright (c) 2024, Eve Kovacs
+>>>>>>> after updating
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
