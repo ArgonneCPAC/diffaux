@@ -8,14 +8,9 @@ on:
     branches: [ main ]
 
 env:
-<<<<<<< before updating
   PYTHON_VERSION: "3.12"
-  WORKING_DIR: ${{ github.workspace }}/benchmarks
-=======
-  PYTHON_VERSION: "3.10"
   ASV_VERSION: "0.6.4"
-  WORKING_DIR: ${{github.workspace}}/benchmarks
->>>>>>> after updating
+  WORKING_DIR: ${{ github.workspace }}/benchmarks
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}

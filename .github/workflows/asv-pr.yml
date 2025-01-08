@@ -15,16 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-<<<<<<< before updating
   PYTHON_VERSION: "3.12"
-  WORKING_DIR: ${{ github.workspace }}/benchmarks
-  ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
-=======
-  PYTHON_VERSION: "3.10"
   ASV_VERSION: "0.6.4"
   WORKING_DIR: ${{github.workspace}}/benchmarks
   ARTIFACTS_DIR: ${{github.workspace}}/artifacts
->>>>>>> after updating
 
 jobs:
   asv-pr:
