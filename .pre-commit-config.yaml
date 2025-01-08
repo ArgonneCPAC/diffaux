@@ -17,10 +17,7 @@ repos:
         name: Clear output from Jupyter notebooks
         description: Clear output from Jupyter notebooks.
         files: \.ipynb$
-<<<<<<< before updating
-=======
         exclude: ^docs/pre_executed
->>>>>>> after updating
         stages: [pre-commit]
         language: system
         entry: jupyter nbconvert --clear-output
