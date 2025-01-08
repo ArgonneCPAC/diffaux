@@ -50,7 +50,7 @@ html_show_sourcelink = False
 add_module_names = False
 
 autoapi_type = "python"
-autoapi_dirs = ["../src"]
+autoapi_dirs = ["../diffaux"]
 autoapi_ignore = ["*/__main__.py", "*/_version.py"]
 autoapi_add_toc_tree_entry = False
 autoapi_member_order = "bysource"
