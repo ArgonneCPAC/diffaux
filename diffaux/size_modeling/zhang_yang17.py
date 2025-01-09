@@ -1,5 +1,4 @@
-""" 
-Module implementing fitting functions for the size-luminosity relation
+"""Module implementing fitting functions for the size-luminosity relation
 taken from Zhang & Yang (2017), arXiv:1707.04979.
 Used for mdelingf galaxy sizes in the cosmoDC2 and SkySim5000 catalogs
 """
