@@ -11,6 +11,8 @@ ran_key = jran.key(0)
 halo_key, ran_key = jran.split(ran_key, 2)
 
 # Invert t_table for redshifts
+
+
 def get_redshifts_from_times(t_table, cosmo_params, zmin=.001, zmax=50, Ngrid=200, zcheck=3):
     zgrid = np.logspace(np.log10(zmax), np.log10(zmin), Ngrid)
     age_grid = age_at_z(zgrid, *cosmo_params)
@@ -24,9 +26,9 @@ def get_redshifts_from_times(t_table, cosmo_params, zmin=.001, zmax=50, Ngrid=20
 
 
 # Generate subcat and SFH catalog
-def get_bulge_disk_test_sample(ran_key, lgmp_min = 11.0, redshift = 0.05,
-                           Lbox = 100.0, centrals=True, cosmology=DEFAULT_COSMOLOGY,
-                          ):
+def get_bulge_disk_test_sample(ran_key, lgmp_min=11.0, redshift=0.05,
+                               Lbox=100.0, centrals=True, cosmology=DEFAULT_COSMOLOGY,
+                               ):
 
     volume_com = Lbox**3
     args = (ran_key, redshift, lgmp_min, volume_com)
@@ -36,7 +38,7 @@ def get_bulge_disk_test_sample(ran_key, lgmp_min = 11.0, redshift = 0.05,
     else:
         diffstar = mc_diffstar_galpop(*args,
                                       return_internal_quantities=True)
-        
+
     print('Generated data shape = ', diffstar['sfh'].shape)
 
     diffstar['sSFR'] = jnp.divide(diffstar['sfh'], diffstar['smh'])
@@ -48,6 +50,7 @@ def get_bulge_disk_test_sample(ran_key, lgmp_min = 11.0, redshift = 0.05,
 
 # Get Model Disk-Bulge Decomposition
 disk_bulge_key, ran_key = jran.split(ran_key, 2)
+
 
 def get_bulge_disk_decomposition(ran_key, diffstar):
     _res = mc_disk_bulge(ran_key, diffstar['t_table'], diffstar['sfh'])
@@ -64,12 +67,14 @@ def get_bulge_disk_decomposition(ran_key, diffstar):
     diffstar['sSFR_bulge'] = jnp.divide(sfh_bulge, smh_bulge)
     diffstar['smh_disk'] = diffstar['smh'] - smh_bulge
     diffstar['sfh_disk'] = diffstar['sfh'] - sfh_bulge
-    diffstar['sSFR_disk'] = jnp.divide(diffstar['sfh_disk'], diffstar['smh_disk'])
+    diffstar['sSFR_disk'] = jnp.divide(
+        diffstar['sfh_disk'], diffstar['smh_disk'])
 
     # Check that returned smh agrees with value in diffstar
     msg = "Returned smh does not match values in test sample"
-    assert(jnp.isclose(diffstar['smh']/smh, smh/smh).all() == True), msg
+    assert (jnp.isclose(diffstar['smh']/smh, smh/smh).all() == True), msg
     bmask = (smh_bulge > diffstar['smh'])
-    assert(np.count_nonzero(bmask) == 0), "Some bulge masses exceed total stellar masses"
+    assert (np.count_nonzero(bmask) ==
+            0), "Some bulge masses exceed total stellar masses"
 
     return diffstar

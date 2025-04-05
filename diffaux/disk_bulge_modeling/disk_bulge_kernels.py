@@ -1,4 +1,5 @@
 """
+Kernels for disk-bulge modeling
 """
 from collections import OrderedDict
 
