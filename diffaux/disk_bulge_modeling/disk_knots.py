@@ -1,9 +1,8 @@
 """
 """
-from diffstar.fitting_helpers.fitting_kernels import _integrate_sfr
+from diffstar.utils import cumulative_mstar_formed
 from dsps.constants import SFR_MIN
 from dsps.sed.stellar_age_weights import calc_age_weights_from_sfh_table
-from dsps.utils import _jax_get_dt_array
 from jax import jit as jjit
 from jax import numpy as jnp
 from jax import vmap
@@ -21,10 +20,9 @@ def _disk_knot_kern(
     sfh_knot = fknot * sfh_disk
     sfh_diffuse_disk = sfh_disk * (1 - fknot)
 
-    dtarr = _jax_get_dt_array(tarr)
-    smh = _integrate_sfr(sfh, dtarr)
-    smh_knot = _integrate_sfr(sfh_knot, dtarr)
-    smh_diffuse_disk = _integrate_sfr(sfh_diffuse_disk, dtarr)
+    smh = cumulative_mstar_formed(tarr, sfh)
+    smh_knot = cumulative_mstar_formed(tarr, sfh_knot)
+    smh_diffuse_disk = cumulative_mstar_formed(tarr, sfh_diffuse_disk)
 
     age_weights_dd = calc_age_weights_from_sfh_table(
         tarr, sfh_diffuse_disk, ssp_lg_age_gyr, tobs

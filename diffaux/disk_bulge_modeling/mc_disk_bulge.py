@@ -1,9 +1,8 @@
 """
 """
 import numpy as np
-from diffstar.fitting_helpers.fitting_kernels import _integrate_sfr
+from diffstar.utils import cumulative_mstar_formed_galpop
 from dsps.constants import SFR_MIN
-from dsps.utils import _jax_get_dt_array
 from jax import jit as jjit
 from jax import random as jran
 from jax import vmap
@@ -13,9 +12,6 @@ from .disk_bulge_kernels import (
     _get_params_from_u_params_vmap,
     calc_tform_pop,
 )
-
-_B = (0, None)
-_integrate_sfr_vmap = jjit(vmap(_integrate_sfr, in_axes=_B))
 
 
 def mc_disk_bulge(ran_key, tarr, sfh_pop):
@@ -52,9 +48,8 @@ def mc_disk_bulge(ran_key, tarr, sfh_pop):
         History of bulge-to-total mass ratio of every galaxy
 
     """
-    dtarr = _jax_get_dt_array(tarr)
     sfh_pop = np.where(sfh_pop < SFR_MIN, SFR_MIN, sfh_pop)
-    smh_pop = _integrate_sfr_vmap(sfh_pop, dtarr)
+    smh_pop = cumulative_mstar_formed_galpop(tarr, sfh_pop)
     t10 = calc_tform_pop(tarr, smh_pop, 0.1)
     t90 = calc_tform_pop(tarr, smh_pop, 0.9)
     logsm0 = smh_pop[:, -1]

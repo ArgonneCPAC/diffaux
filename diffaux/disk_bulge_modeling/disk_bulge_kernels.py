@@ -3,10 +3,9 @@
 from collections import OrderedDict
 
 import numpy as np
-from diffstar.fitting_helpers.fitting_kernels import _integrate_sfr
+from diffstar.utils import cumulative_mstar_formed
 from dsps.constants import SFR_MIN
 from dsps.sed.stellar_age_weights import calc_age_weights_from_sfh_table
-from dsps.utils import _jax_get_dt_array
 from jax import jit as jjit
 from jax import lax
 from jax import numpy as jnp
@@ -172,15 +171,14 @@ def _bulge_fraction_vs_tform(t, t10, t90, params):
 
 @jjit
 def _bulge_sfh(tarr, sfh, fbulge_params):
-    dtarr = _jax_get_dt_array(tarr)
     sfh = jnp.where(sfh < SFR_MIN, SFR_MIN, sfh)
-    smh = _integrate_sfr(sfh, dtarr)
+    smh = cumulative_mstar_formed(tarr, sfh)
     fracmh = smh / smh[-1]
     t10 = jnp.interp(0.1, fracmh, tarr)
     t90 = jnp.interp(0.9, fracmh, tarr)
     eff_bulge = _bulge_fraction_vs_tform(tarr, t10, t90, fbulge_params)
     sfh_bulge = eff_bulge * sfh
-    smh_bulge = _integrate_sfr(sfh_bulge, dtarr)
+    smh_bulge = cumulative_mstar_formed(tarr, sfh_bulge)
     bth = smh_bulge / smh
     return smh, eff_bulge, sfh_bulge, smh_bulge, bth
 
