@@ -1,5 +1,3 @@
-"""
-"""
 import numpy as np
 from dsps.utils import _jax_get_dt_array
 from jax import random as jran

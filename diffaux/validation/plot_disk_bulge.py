@@ -10,14 +10,15 @@ plotdir = '/Users/kovacs/cosmology/DiskBulgePlots'
 
 
 def plot_qs_nocuts(qs, zvalues, redshifts,  dz=0.1,
-                   qlabels=['Bulge', 'Disk', 'Total'], normalize=False, lbox=100,
-                   colors=['r', 'blue', 'black'], xlabel='$\\log_{10}(M^*/M_\\odot)$',
+                   qlabels=('Bulge', 'Disk', 'Total'), normalize=False, lbox=100,
+                   colors=('r', 'blue', 'black'), xlabel='$\\log_{10}(M^*/M_\\odot)$',
                    pltname='N_vs_logM_{}.png', yscale='log', xscale='log', bins=50, xname='disk_bulge_total',
-                   plotdir=os.path.join(plotdir, 'DiskBulge_Histograms'), lgnd_title=''):
+                   plotdir='./', plotsubdir='DiskBulge_Histograms'), lgnd_title=''):
 
+    plotdir = os.path.join(plotdir, plotsubdir) 
     nrow, ncol = get_nrow_ncol(len(zvalues))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(5*ncol, 4*nrow))
-    bin_widths = bins[1:] - bins[:-1]
+    #bin_widths = bins[1:] - bins[:-1]
 
     for ax, z in zip_longest(ax_all.flat, zvalues):
         zmask = (z-dz <= redshifts) & (z+dz >= redshifts)
@@ -51,8 +52,10 @@ def plot_histories(qs, t_table, labels, ylabels, plot_label=None,
                    color_array=None, row_mask=None, lgnd_label='#{}',
                    pltname='History_{}_step_{}.png', yscale='', reverse=False,
                    check_step=5000, xlimlo=0.5, xlimhi=14,
-                   step=300, plotdir=os.path.join(plotdir, 'DiskBulge_Histories')):
+                   step=300,
+                   plotdir='./', plotsubdir='DiskBulge_Histories'):
 
+    plotdir = os.path.join(plotdir, plotsubdir)
     nrow, ncol = get_nrow_ncol(len(qs))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(5*ncol, 4*nrow))
     # expect all q to be same length
@@ -109,11 +112,12 @@ def plot_histories(qs, t_table, labels, ylabels, plot_label=None,
 
 
 def plot_q_with_cuts(q, zvalues, redshifts, cut_array, cuts, dz=0.1,
-                     cut_labels=['{{}} $\\leq$ {:.0f}', '{{}} $\\geq$ {:.0f}'],
-                     colors=['r', 'blue'], xlabel='B/T', cut_name='$\\log_{10}(sSFR/yr)$',
+                     cut_labels=('{{}} $\\leq$ {:.0f}', '{{}} $\\geq$ {:.0f}'),
+                     colors=('r', 'blue'), xlabel='B/T', cut_name='$\\log_{10}(sSFR/yr)$',
                      pltname='BT_cut_on_{}.png', yscale='log', xscale='', bins=50, xname='log_sSFR',
-                     plotdir=os.path.join(plotdir, 'DiskBulge_Histograms'), lgnd_title=''):
+                     plotdir='./', plotsubdir='DiskBulge_Histograms'), lgnd_title=''):
 
+    plotdir = os.path.join(plotdir, plotsubdir) 
     nrow, ncol = get_nrow_ncol(len(zvalues))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(5*ncol, 4*nrow))
 
@@ -147,12 +151,13 @@ def plot_q_with_cuts(q, zvalues, redshifts, cut_array, cuts, dz=0.1,
 
 
 def plot_q1_q2(q1, q2, zvalues, redshifts, cut_array, cut_lo, cut_hi, dz=0.1,
-               cut_label='{:.1f} $\\leq$ {{}} $\\leq$ {:.1f}', qlabels=['Bulge', 'Disk'],
-               cut_at_z0=True,
-               colors=['r', 'blue'], xlabel='sSFR $(yr^{-1})$', cut_name='$\\log_{10}(M^*_{z=0}/M_\\odot)$',
-               pltname='sSFR_cut_on_{}.png', yscale='log', xscale='log', bins=50, xname='log_M0_{:.1f}_{:.1f}',
-               plotdir=os.path.join(plotdir, 'DiskBulge_Histograms'), lgnd_title=''):
+               cut_label='{:.1f} $\\leq$ {{}} $\\leq$ {:.1f}', qlabels=('Bulge', 'Disk'),
+               cut_at_z0=True,  cut_name='$\\log_{10}(M^*_{z=0}/M_\\odot)$',
+               colors=('r', 'blue'), xlabel='sSFR $(yr^{-1})$', xname='log_M0_{:.1f}_{:.1f}',
+               pltname='sSFR_cut_on_{}.png', yscale='log', xscale='log', bins=50,
+               plotdir='./', plotsubdir='DiskBulge_Histograms'), lgnd_title=''):
 
+    plotdir = os.path.join(plotdir, plotsubdir)
     nrow, ncol = get_nrow_ncol(len(zvalues))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(5*ncol, 4*nrow))
 
@@ -199,8 +204,9 @@ def plot_q1_vs_q2(qx, qy, zvalues, redshifts, color_array, dz=0.1,
                   ylabel='$\\log_{10}(sSFR/yr)$', xlabel='$\\log_{10}(M^*/M_\\odot)$',
                   cmap='jet', N=1000,
                   pltname='sSFR_vs_Mstar_{}.png', yscale='linear', xscale='linear', xname='',
-                  plotdir=os.path.join(plotdir, 'DiskBulge_Scatter'), title=''):
+                  plotdir='./', plotsubdir='DiskBulge_Scatter'), title=''):
 
+    plotdir = os.path.join(plotdir, plotsubdir)
     nrow, ncol = get_nrow_ncol(len(zvalues))
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(5*ncol, 4*nrow))
 

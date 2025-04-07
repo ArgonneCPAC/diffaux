@@ -1,4 +1,5 @@
 """
+Add knot component
 """
 from diffstar.utils import cumulative_mstar_formed
 from dsps.constants import SFR_MIN

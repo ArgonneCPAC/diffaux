@@ -17,3 +17,7 @@ dependencies:
     - pip
     - astropy
     - healpy
+    - diffstar
+    - dsps
+    - autopep8
+
