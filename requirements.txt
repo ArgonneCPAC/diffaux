@@ -2,3 +2,8 @@ numpy
 scipy
 astropy
 matplotlib
+jax
+dsps
+diffstar
+diffsky
+diffstarpop
