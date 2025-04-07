@@ -4,9 +4,7 @@ Generate disk-bulge decomposition
 import numpy as np
 from diffstar.utils import cumulative_mstar_formed_galpop
 from dsps.constants import SFR_MIN
-from jax import jit as jjit
 from jax import random as jran
-from jax import vmap
 
 from .disk_bulge_kernels import (
     _bulge_sfh_vmap,
@@ -102,8 +100,6 @@ def generate_fbulge_params(
     mc_u_late = jran.normal(late_key, shape=(n,)) * scale_u_late + mu_u_late_pop
 
     u_params = np.array((mc_u_tcrit, mc_u_early, mc_u_late)).T
-    fbulge_tcrit, fbulge_early, fbulge_late = _get_params_from_u_params_vmap(
-        u_params, t10, t90
-    )
+    fbulge_tcrit, fbulge_early, fbulge_late = _get_params_from_u_params_vmap(u_params, t10, t90)
     fbulge_params = np.array((fbulge_tcrit, fbulge_early, fbulge_late)).T
     return fbulge_params

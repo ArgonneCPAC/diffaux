@@ -13,10 +13,12 @@ LGAGE_MAX = 9.0
 DLGAGE_MIN = 1.0
 LGAGE_K = 0.1
 
+
 class BurstParams(typing.NamedTuple):
     """
     Burst Parameters
     """
+
     lgyr_peak: jnp.float32
     lgyr_max: jnp.float32
 
@@ -25,6 +27,7 @@ class BurstUParams(typing.NamedTuple):
     """
     Burst U Parameters
     """
+
     u_lgyr_peak: jnp.float32
     u_lgyr_max: jnp.float32
 
@@ -114,24 +117,18 @@ def _get_u_lgyr_max_from_lgyr_peak(lgyr_peak, lgyr_max):
     return u_lgyr_max
 
 
-DEFAULT_U_PARAMS = BurstUParams(
-    *[float(u_p) for u_p in _get_u_params_from_params(DEFAULT_PARAMS)]
-)
+DEFAULT_U_PARAMS = BurstUParams(*[float(u_p) for u_p in _get_u_params_from_params(DEFAULT_PARAMS)])
 
 
 @jjit
-def _compute_bursty_age_weights_from_params(
-    lgyr_since_burst, age_weights, fburst, params
-):
+def _compute_bursty_age_weights_from_params(lgyr_since_burst, age_weights, fburst, params):
     burst_weights = _age_weights_from_params(lgyr_since_burst, params)
     age_weights = fburst * burst_weights + (1 - fburst) * age_weights
     return age_weights
 
 
 @jjit
-def _compute_bursty_age_weights_from_u_params(
-    lgyr_since_burst, age_weights, fburst, u_params
-):
+def _compute_bursty_age_weights_from_u_params(lgyr_since_burst, age_weights, fburst, u_params):
     burst_weights = _age_weights_from_u_params(lgyr_since_burst, u_params)
     age_weights = fburst * burst_weights + (1 - fburst) * age_weights
     return age_weights

@@ -6,3 +6,4 @@ jax
 dsps
 diffstar
 diffsky
+diffstarpop
