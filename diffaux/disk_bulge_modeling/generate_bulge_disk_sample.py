@@ -67,12 +67,12 @@ def get_bulge_disk_decomposition(ran_key, diffstar):
     diffstar['sSFR_bulge'] = jnp.divide(sfh_bulge, smh_bulge)
     diffstar['smh_disk'] = diffstar['smh'] - smh_bulge
     diffstar['sfh_disk'] = diffstar['sfh'] - sfh_bulge
-    diffstar['sSFR_disk'] = jnp.divide(
-        diffstar['sfh_disk'], diffstar['smh_disk'])
+    diffstar['sSFR_disk'] = jnp.divide(diffstar['sfh_disk'],
+                                       diffstar['smh_disk'])
 
     # Check that returned smh agrees with value in diffstar
     msg = "Returned smh does not match values in test sample"
-    assert (jnp.isclose(diffstar['smh']/smh, smh/smh).all() == True), msg
+    assert (jnp.isclose(diffstar['smh']/smh, smh/smh).all()), msg
     bmask = (smh_bulge > diffstar['smh'])
     assert (np.count_nonzero(bmask) ==
             0), "Some bulge masses exceed total stellar masses"

@@ -1,5 +1,3 @@
-"""
-"""
 import numpy as np
 from diffstar.fitting_helpers.fitting_kernels import _integrate_sfr
 from dsps.constants import SFR_MIN

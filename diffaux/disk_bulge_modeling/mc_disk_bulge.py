@@ -1,4 +1,5 @@
 """
+Generate disk-bulge decomposition
 """
 import numpy as np
 from diffstar.utils import cumulative_mstar_formed_galpop
