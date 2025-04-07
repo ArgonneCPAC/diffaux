@@ -8,9 +8,8 @@ from diffstar.utils import cumulative_mstar_formed
 from dsps.constants import SFR_MIN
 from dsps.sed.stellar_age_weights import calc_age_weights_from_sfh_table
 from jax import jit as jjit
-from jax import lax
+from jax import lax, vmap
 from jax import numpy as jnp
-from jax import vmap
 
 from ..legacy.roman_rubin_2023.dsps.experimental.diffburst import (
     _age_weights_from_params as _burst_age_weights_from_params,

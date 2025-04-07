@@ -1,5 +1,4 @@
 import numpy as np
-from dsps.utils import _jax_get_dt_array
 from jax import random as jran
 
 from diffstar.utils import cumulative_mstar_formed_galpop
@@ -181,7 +180,6 @@ def test_decompose_sfh_into_bulge_disk_knots():
         mtot = mbulge + mdd + mknot
         lgmtot = np.log10(mtot)
 
-        dt_table = _jax_get_dt_array(gal_t_table)
         gal_smh = cumulative_mstar_formed_galpop(gal_t_table, gal_sfh)
         gal_logsmh = np.log10(gal_smh)
 
