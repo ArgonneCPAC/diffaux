@@ -13,18 +13,18 @@ LGAGE_MAX = 9.0
 DLGAGE_MIN = 1.0
 LGAGE_K = 0.1
 
-"""
-Burst Parameters
-"""
 class BurstParams(typing.NamedTuple):
+    """
+    Burst Parameters
+    """
     lgyr_peak: jnp.float32
     lgyr_max: jnp.float32
 
 
-"""
-Burst U Parameters
-"""
 class BurstUParams(typing.NamedTuple):
+    """
+    Burst U Parameters
+    """
     u_lgyr_peak: jnp.float32
     u_lgyr_max: jnp.float32
 
