@@ -1,15 +1,17 @@
 import os
 from itertools import zip_longest
 
+import sys
 import jax.numpy as jnp
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
-from diffaux.validation.plot_utilities import get_nrow_ncol, get_subsample
+from scipy.stats import binned_statistic
+from .plot_utilities import get_nrow_ncol, get_subsample
+from ..disk_bulge_modeling import disk_bulge_kernels as dbk
 
 plotdir = "/Users/kovacs/cosmology/DiskBulgePlots"
-
 
 def plot_qs_nocuts(
     qs,
@@ -264,6 +266,8 @@ def plot_q1_vs_q2(
     dz=0.1,
     ymin=-14,
     ymax=-9,
+    xmin=7,
+    xmax=12,
     cbar_title="B/T",
     ylabel="$\\log_{10}(sSFR/yr)$",
     xlabel="$\\log_{10}(M^*/M_\\odot)$",
@@ -300,6 +304,7 @@ def plot_q1_vs_q2(
         qymax = jnp.max(qy_z[idx])
         ymax = 0.92 * qymax if qymax > ymax else ymax
         ax.set_ylim(ymin, ymax)
+        ax.set_xlim(xmin, xmax)
         ax.set_xlabel(xlabel)
         ax.tick_params(axis="y", labelrotation=90)
         ax.set_ylabel(ylabel, labelpad=0.0)
@@ -309,6 +314,146 @@ def plot_q1_vs_q2(
     cbar = fig.colorbar(im, ax=ax_all, location="right", fraction=0.1)
     # cbar.ax.set_title(cbar_title, rotation=90)
     cbar.set_label(cbar_title, rotation=90, labelpad=3.0, y=0.5, fontsize=14)
+    fig.suptitle(title, y=0.97)
+    # plt.tight_layout()
+    plt.savefig(fn)
+    print(f"Saving {fn}")
+
+    return
+
+
+def plot_q_vs_q_x_at_z_scatter(q, q_x, ylabel,
+            color_array,
+            zindexes, zs,
+            cbar_title="$\\epsilon_{bulge}$",
+            xlabel="tcrit_bulge",
+            cmap="jet",
+            N=1000,
+            yscale="linear",
+            xscale="linear",
+            pltname="{}_{}.png",
+            bins=50,
+            xname="", title="",
+            plotdir="./",
+            plotsubdir="DiskBulge_Scatter",
+            lgnd_title="",
+            ):
+    plotdir = os.path.join(plotdir, plotsubdir)
+    nrow, ncol = get_nrow_ncol(len(zs))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow),
+                               sharex=True, sharey=True)
+
+    for ax, zidx, z in zip_longest(ax_all.flat, zindexes, zs):
+        zlabel = "$z = {:.2f}$".format(z)
+        color_array_z = color_array[:, zidx]
+        # subsample
+        Nobj, idx = get_subsample(len(q_x), N)
+        #print(np.min(q_x[idx]), np.max(q_x[idx]), np.min(q[idx]), np.max(q[idx]))
+        im = ax.scatter(q_x[idx], q[idx], c=color_array_z[idx], cmap=cmap)
+        ax.set_yscale(yscale)
+        ax.set_xscale(xscale)
+        ax.set_xlabel(xlabel)
+        # ax.set_ylabel('$dN/dlog_{10}(M^*/M_\\odot)$')
+        ax.set_ylabel(ylabel)
+        ax.legend(loc="best", title=zlabel)
+
+    fn = os.path.join(plotdir, pltname.format(ylabel, xname))
+    cbar = fig.colorbar(im, ax=ax_all, location="right", fraction=0.1)
+    # cbar.ax.set_title(cbar_title, rotation=90)
+    cbar.set_label(cbar_title, rotation=90, labelpad=3.0, y=0.5, fontsize=14)
+    fig.suptitle(title, y=0.97)
+    # plt.tight_layout()
+    plt.savefig(fn)
+    print(f"Saving {fn}")
+
+    return
+
+
+def plot_q_vs_qx_at_z_profile(qs, qx, ylabels, zindexes, zs,
+            yscale="linear",
+            xscale="linear",
+            pltname="{}_{}.png",
+            bins=50,
+            xlabel='$\\log_{10}(M^*/M_\\odot)$',
+            xname="", title="",
+            plotdir="./", Ylabel='$\\langle {} \\rangle$',
+            plotsubdir="DiskBulge_Profiles",
+            lgnd_title="",
+            colors=('b', 'g', 'c', 'r', 'darkorange', 'm'),
+            errors=(True, True, True, True, False, False),
+            qs_depends_z=False,
+            ):
+
+    plotdir = os.path.join(plotdir, plotsubdir)
+    nrow, ncol = get_nrow_ncol(len(qs))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow))
+
+    for ax, q, ylabel, error in zip_longest(ax_all.flat, qs, ylabels, errors):
+        if q is None:
+            continue
+
+        for zidx, z, c in zip(zindexes, zs, colors):
+            zlabel = "$z = {:.2f}$".format(z)
+            xvals = qx[:, zidx] #x values at z
+            xmeans, _, _ = binned_statistic(xvals, xvals, bins=bins)
+            yvals = q[:, zidx] if qs_depends_z else q
+            ymeans, _, _ = binned_statistic(xvals, yvals, bins=bins)
+            std, _, _ = binned_statistic(xvals, yvals, bins=bins, statistic='std')
+            ax.plot(xmeans, ymeans, label=zlabel, color=c)
+            if error:
+                ax.fill_between(xmeans, ymeans-std, ymeans+std, alpha=0.3, color=c)
+
+        ax.set_yscale(yscale)
+        ax.set_xscale(xscale)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(Ylabel.format(ylabel))
+        ax.legend(loc="best")
+
+    fn = os.path.join(plotdir, pltname.format(xname))
+    fig.suptitle(title, y=0.97)
+    # plt.tight_layout()
+    plt.savefig(fn)
+    print(f"Saving {fn}")
+
+    return
+
+def plot_eff_sigmoids(tarr, f_tcrit, f_early, f_late, Dt,
+            k_inv=6., 
+            yscale="linear",
+            xscale="linear",
+            ylabel="$\\epsilon_{bulge}$",
+            xlabel="t",
+            pltname="eff_bulge.png",
+            xname="", title="",
+            plotdir="./",
+            plotsubdir="DiskBulge_Eff",
+            lgnd_title="",
+            ):
+    
+    plotdir = os.path.join(plotdir, plotsubdir)
+    
+    nrow, ncol = get_nrow_ncol(len(f_early))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow),
+                              sharex=True, sharey=True)    
+
+    for ax, early, late in zip(ax_all.flat, f_early, f_late):
+        title = "$f_{{early}} = {:.2f}, f_{{late}} = {:.2f}$".format(early, late)
+        for thalf in f_tcrit:
+            for dt in Dt:
+                tw_h = dt/k_inv
+                yvals = dbk._tw_sigmoid(tarr, thalf, tw_h, early, late)
+                ax.plot(tarr, yvals, label='$t_c$ = {:.1f}, $dt$ = {:.1f}'.format(thalf, dt))
+
+        
+        ax.set_yscale(yscale)
+        ax.set_xscale(xscale)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        #ax.set_ylim()
+        ax.legend(loc="best", ncol=2, fontsize=8)
+
+    fn = os.path.join(plotdir, pltname.format(xname))
     fig.suptitle(title, y=0.97)
     # plt.tight_layout()
     plt.savefig(fn)
