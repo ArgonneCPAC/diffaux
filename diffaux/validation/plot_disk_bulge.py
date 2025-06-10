@@ -460,3 +460,82 @@ def plot_eff_sigmoids(tarr, f_tcrit, f_early, f_late, Dt,
     print(f"Saving {fn}")
 
     return
+
+
+def plot_q_profile(ax_all, xs, qs, binz, label, error=True):
+
+    for ax, x, q, bins in zip(ax_all.flat, xs, qs, binz):
+        xmeans, _, _ = binned_statistic(x, x, bins=bins)
+        #print(xmeans)
+        ymeans, _, _ = binned_statistic(x, q, bins=bins)
+        std, _, _ = binned_statistic(x, q, bins=bins, statistic='std')
+        ax.plot(xmeans, ymeans, label=label)
+        if error:
+            ax.fill_between(xmeans, ymeans-std, ymeans+std, alpha=0.3)
+
+    return
+
+
+def plot_qs_zprofiles(ax_all, xs, qs, binz, zindexes, zs,
+                      x_depends_z=True,
+                      colors=('b', 'g', 'c', 'r', 'darkorange', 'm'),
+                      error=True,
+                     ):
+    
+    for zidx, z, c in zip(zindexes, zs, colors):
+        zlabel = "$z = {:.2f}$".format(z)
+        xvals = [x[:, zidx] for x in xs] if x_depends_z else [x for x in xs] #x values at z
+        yvals = [q[:, zidx] for q in qs]
+    
+        plot_q_profile(ax_all, xvals, yvals, binz, zlabel, error=error)
+        
+
+#profiles for list of quantities with list of x dependence at chosen z values
+def plot_qs_profiles_for_zvals(xs, qs, binz, labels, zindexes, zs,
+                               xlabels,
+                               colors=('b', 'g', 'c', 'r', 'darkorange', 'm'),
+                               plotdir="./", plotsubdir='profiles', error = True,
+                               pltname="qs_z_{}.png", title="", xname=""):
+    
+    plotdir = os.path.join(plotdir, plotsubdir)
+    nrow, ncol = get_nrow_ncol(len(labels))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow))
+
+    plot_qs_zprofiles(ax_all, xs, qs, binz, zindexes, zs,
+                      colors=colors, error=error)
+
+    for ax, label, xlabel in zip(ax_all.flat, labels, xlabels):
+        ax.legend(loc='best', title=label)
+        ax.set_xlabel(xlabel)
+
+    fn = os.path.join(plotdir, pltname.format(xname))
+    fig.suptitle(title, y=0.97)
+    # plt.tight_layout()
+    plt.savefig(fn)
+    print(f"Saving {fn}")
+
+
+#comparison profiles for lists of quantities with lists of x dependence
+def plot_qs_profiles(xs, fs, labels, lxs, lys, bins,
+                     plotdir="./",
+                     pltname = 'generate_fbulge_{}.png',
+                     plotsubdir='profiles', title="", xname=""):
+    
+    plotd = os.path.join(plotdir, plotsubdir)
+    nrow, ncol = get_nrow_ncol(len(xs[0]))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow))
+
+    for x, f, label in zip(xs, fs, labels): #loop over curves for each plot
+        plot_q_profile(ax_all, x, f, bins, label, error=True) #loop over plots
+
+    for ax, lx, ly in zip(ax_all.flat, lxs, lys):
+        ax.legend(loc='best')
+        ax.set_xlabel(lx)
+        ax.set_ylabel(ly)
+    
+    fn = os.path.join(plotd, pltname.format(xname))
+    fig.suptitle(title, y=0.97)
+    plt.savefig(fn)
+    print(f"Saving {fn}")
+
+    return

@@ -24,6 +24,12 @@ def get_redshifts_from_times(t_table, cosmo_params, zmin=0.001, zmax=50, Ngrid=2
     return redshifts
 
 
+def get_zindexes(zvalues, redshifts):
+    zindexes = [int(np.abs(redshifts - z).argmin()) for z in zvalues]
+    zs = [float(redshifts[i]) for i in zindexes]
+    return zindexes, zs
+
+
 # Generate subcat and SFH catalog
 def get_bulge_disk_test_sample(
     ran_key,
