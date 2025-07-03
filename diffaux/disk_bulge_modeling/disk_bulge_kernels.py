@@ -69,6 +69,12 @@ def _tw_sigmoid(x, x0, tw_h, ymin, ymax):
 
 
 @jjit
+def _sigmoid_2d(x, x0, y, y0, kx, ky, zmin, zmax):
+    height_diff = zmax - zmin
+    return zmin + height_diff * lax.logistic(kx * (x - x0) - ky * (y - y0))
+
+
+@jjit
 def _bulge_fraction_kernel(t, thalf, frac_early, frac_late, dt):
     """typical values of 10.0, 0.7, 0.1
     frac_late < frac_late is needed to make bulges redder and so that
