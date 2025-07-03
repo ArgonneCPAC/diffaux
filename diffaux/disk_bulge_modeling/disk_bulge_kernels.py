@@ -26,20 +26,17 @@ DEFAULT_FBULGE_LATE = 0.15
 
 
 DEFAULT_T10, DEFAULT_T90 = 2.0, 9.0
-DEFAULT_FBULGE_PDICT = OrderedDict(
-    fbulge_tcrit=8.0, fbulge_early=0.5, fbulge_late=0.1)
+DEFAULT_FBULGE_PDICT = OrderedDict(fbulge_tcrit=8.0, fbulge_early=0.5, fbulge_late=0.1)
 DEFAULT_FBULGE_PARAMS = np.array(list(DEFAULT_FBULGE_PDICT.values()))
 
 
 _linterp_vmap = jjit(vmap(jnp.interp, in_axes=(0, None, 0)))
 
 _A = (None, 0)
-_burst_age_weights_from_params_vmap = jjit(
-    vmap(_burst_age_weights_from_params, in_axes=_A))
+_burst_age_weights_from_params_vmap = jjit(vmap(_burst_age_weights_from_params, in_axes=_A))
 
 _D = (None, 0, None, 0)
-calc_age_weights_from_sfh_table_vmap = jjit(
-    vmap(calc_age_weights_from_sfh_table, in_axes=_D))
+calc_age_weights_from_sfh_table_vmap = jjit(vmap(calc_age_weights_from_sfh_table, in_axes=_D))
 
 
 @jjit
@@ -58,8 +55,7 @@ def _inverse_sigmoid(y, x0, k, ymin, ymax):
 def _tw_cuml_kern(x, m, h):
     """Triweight kernel version of an err function."""
     z = (x - m) / h
-    val = -5 * z**7 / 69984 + 7 * z**5 / 2592 - \
-        35 * z**3 / 864 + 35 * z / 96 + 1 / 2
+    val = -5 * z**7 / 69984 + 7 * z**5 / 2592 - 35 * z**3 / 864 + 35 * z / 96 + 1 / 2
     val = jnp.where(z < -3, 0, val)
     val = jnp.where(z > 3, 1, val)
     return val
@@ -96,12 +92,10 @@ def _get_u_params_from_params(params, t10, t90):
     u_fbulge_tcrit = _inverse_sigmoid(fbulge_tcrit, t50, BOUNDING_K, t10, t90)
 
     x0 = (FBULGE_MIN + FBULGE_MAX) / 2
-    u_fbulge_early = _inverse_sigmoid(
-        fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
+    u_fbulge_early = _inverse_sigmoid(fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
 
     x0_late = (fbulge_early + FBULGE_MIN) / 2
-    u_fbulge_late = _inverse_sigmoid(
-        fbulge_late, x0_late, BOUNDING_K, fbulge_early, FBULGE_MIN)
+    u_fbulge_late = _inverse_sigmoid(fbulge_late, x0_late, BOUNDING_K, fbulge_early, FBULGE_MIN)
 
     u_params = u_fbulge_tcrit, u_fbulge_early, u_fbulge_late
     return u_params
@@ -115,12 +109,10 @@ def _get_params_from_u_params(u_params, t10, t90):
     fbulge_tcrit = _sigmoid(u_fbulge_tcrit, t50, BOUNDING_K, t10, t90)
 
     x0 = (FBULGE_MIN + FBULGE_MAX) / 2
-    fbulge_early = _sigmoid(
-        u_fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
+    fbulge_early = _sigmoid(u_fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
 
     x0_late = (fbulge_early + FBULGE_MIN) / 2
-    fbulge_late = _sigmoid(u_fbulge_late, x0_late,
-                           BOUNDING_K, fbulge_early, FBULGE_MIN)
+    fbulge_late = _sigmoid(u_fbulge_late, x0_late, BOUNDING_K, fbulge_early, FBULGE_MIN)
 
     params = fbulge_tcrit, fbulge_early, fbulge_late
     return params
@@ -165,8 +157,7 @@ def calc_tform_pop(tarr, smh_pop, tform_frac):
 def _bulge_fraction_vs_tform(t, t10, t90, params):
     fbulge_tcrit, fbulge_early, fbulge_late = params
     dt = t90 - t10
-    fbulge = _bulge_fraction_kernel(
-        t, fbulge_tcrit, fbulge_early, fbulge_late, dt)
+    fbulge = _bulge_fraction_kernel(t, fbulge_tcrit, fbulge_early, fbulge_late, dt)
     return fbulge
 
 
@@ -262,8 +253,7 @@ def decompose_sfhpop_into_bulge_disk_knots(
 
     """
     ssp_lg_age_yr = ssp_lg_age_gyr + 9.0
-    gal_burst_age_weights = _burst_age_weights_from_params_vmap(
-        ssp_lg_age_yr, gal_burstshape_params)
+    gal_burst_age_weights = _burst_age_weights_from_params_vmap(ssp_lg_age_yr, gal_burstshape_params)
     return _decompose_sfhpop_into_bulge_disk_knots(
         gal_fbulge_params,
         gal_fknot,
@@ -293,8 +283,7 @@ def _decompose_sfh_singlegal_into_bulge_disk_knots(
     bulge_sfh = jnp.where(bulge_sfh < SFR_MIN, SFR_MIN, bulge_sfh)
     frac_bulge_t_obs = jnp.interp(t_obs, t_table, bulge_to_total_history)
 
-    bulge_age_weights = calc_age_weights_from_sfh_table(
-        t_table, bulge_sfh, ssp_lg_age_gyr, t_obs)
+    bulge_age_weights = calc_age_weights_from_sfh_table(t_table, bulge_sfh, ssp_lg_age_gyr, t_obs)
     disk_sfh = sfh_table - bulge_sfh
     disk_sfh = jnp.where(disk_sfh < SFR_MIN, SFR_MIN, disk_sfh)
 
@@ -333,8 +322,7 @@ def _decompose_sfhpop_into_bulge_disk_knots(
     smh, eff_bulge, bulge_sfh, smh_bulge, bulge_to_total_history = _res
 
     bulge_sfh = jnp.where(bulge_sfh < SFR_MIN, SFR_MIN, bulge_sfh)
-    gal_frac_bulge_t_obs = _linterp_vmap(
-        gal_t_obs, gal_t_table, bulge_to_total_history)
+    gal_frac_bulge_t_obs = _linterp_vmap(gal_t_obs, gal_t_table, bulge_to_total_history)
 
     bulge_age_weights = calc_age_weights_from_sfh_table_vmap(
         gal_t_table, bulge_sfh, ssp_lg_age_gyr, gal_t_obs
@@ -363,8 +351,6 @@ def _decompose_sfhpop_into_bulge_disk_knots(
     return ret
 
 
-DEFAULT_FBULGE_U_PARAMS = _get_u_params_from_params(
-    DEFAULT_FBULGE_PARAMS, DEFAULT_T10, DEFAULT_T90)
+DEFAULT_FBULGE_U_PARAMS = _get_u_params_from_params(DEFAULT_FBULGE_PARAMS, DEFAULT_T10, DEFAULT_T90)
 _A = (0, 0, 0)
-_get_params_from_u_params_vmap = jjit(
-    vmap(_get_params_from_u_params, in_axes=_A))
+_get_params_from_u_params_vmap = jjit(vmap(_get_params_from_u_params, in_axes=_A))
