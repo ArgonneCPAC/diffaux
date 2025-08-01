@@ -27,7 +27,7 @@ exceptiongroup==1.2.2
 executing==2.0.1
 fastjsonschema==2.20.0
 filelock==3.18.0
-fonttools==4.57.0
+fonttools==4.59.0
 fqdn==1.5.1
 h11==0.16.0
 h5py==3.11.0
