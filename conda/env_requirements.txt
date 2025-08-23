@@ -11,7 +11,7 @@ attrs==23.2.0
 Babel==2.15.0
 backcall==0.2.0
 beautifulsoup4==4.12.3
-bleach==6.1.0
+bleach==6.2.0
 certifi==2024.7.4
 cffi==1.16.0
 charset-normalizer==3.4.1
@@ -23,11 +23,11 @@ decorator==5.1.1
 defusedxml==0.7.1
 distlib==0.3.8
 docutils==0.20.1
-exceptiongroup==1.2.2
+exceptiongroup==1.3.0
 executing==2.0.1
 fastjsonschema==2.20.0
 filelock==3.18.0
-fonttools==4.57.0
+fonttools==4.59.0
 fqdn==1.5.1
 h11==0.16.0
 h5py==3.11.0
@@ -115,7 +115,7 @@ sphinx-autoapi==3.3.2
 sphinx-copybutton==0.5.2
 sphinx-rtd-theme==2.0.0
 sphinxcontrib-applehelp==2.0.0
-sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-devhelp==2.0.0
 sphinxcontrib-htmlhelp==2.1.0
 sphinxcontrib-jquery==4.1
 sphinxcontrib-jsmath==1.0.1
@@ -137,4 +137,4 @@ webcolors==24.6.0
 webencodings==0.5.1
 websocket-client==1.8.0
 widgetsnbextension==4.0.11
-zipp==3.19.2
+zipp==3.23.0
