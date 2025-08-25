@@ -65,6 +65,7 @@ exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
 
 [tool.pytest.ini_options]
 testpaths = [
+<<<<<<< before updating
             "tests",
 	    "*/tests/",
 	    "*/*/tests/",
@@ -78,11 +79,17 @@ target-version = ["py39"]
 [tool.isort]
 profile = "black"
 line_length = 110
+=======
+    "tests",
+    "src",
+    "docs",
+]
+addopts = "--doctest-modules --doctest-glob=*.rst"
+>>>>>>> after updating
 
 [tool.ruff]
 line-length = 110
 target-version = "py39"
-
 [tool.ruff.lint]
 select = [
     # pycodestyle
@@ -114,7 +121,6 @@ select = [
     # Numpy v2.0 compatibility
     "NPY201",
 ]
-
 ignore = [
     "UP006", # Allow non standard library generics in type hints
     "UP007", # Allow Union in type hints
@@ -126,6 +132,7 @@ ignore = [
     "N815", #Allow mixed case variable names
     "B007", #Allow unused loop variable
 ]
+
 
 [tool.coverage.run]
 omit=["src/diffaux/_version.py"]
