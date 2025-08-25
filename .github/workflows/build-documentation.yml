@@ -21,10 +21,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+<<<<<<< before updating
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+=======
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+>>>>>>> after updating
     - name: Install dependencies
       run: |
         sudo apt-get update
