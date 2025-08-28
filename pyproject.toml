@@ -46,7 +46,7 @@ write_to = "diffaux/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
 [tool.setuptools]
-packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
+#packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}} #breaks CI tests
 package-dir = {diffaux = "diffaux"}
 include-package-data = true
 
