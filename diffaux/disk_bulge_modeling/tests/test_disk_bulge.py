@@ -1,19 +1,19 @@
 import numpy as np
 from diffstar.utils import cumulative_mstar_formed_galpop
+from dsps.sfh.diffburst import (
+    DEFAULT_BURST_PARAMS,
+)
+from dsps.sfh.diffburst import (
+    _pureburst_age_weights_from_params as _burst_age_weights_from_params,
+)
 from jax import random as jran
 
 from ...disk_bulge_modeling.disk_knots import FKNOT_MAX
-from ...disk_bulge_modeling.mc_disk_bulge import mc_disk_bulge
-from ...legacy.roman_rubin_2023.dsps.experimental.diffburst import (
-    DEFAULT_PARAMS as DEFAULT_BURST_PARAMS,
-)
-from ...legacy.roman_rubin_2023.dsps.experimental.diffburst import (
-    _age_weights_from_params as _burst_age_weights_from_params,
+from ...disk_bulge_modeling.mc_disk_bulge import (
+    mc_disk_bulge,
 )
 from ..disk_bulge_kernels import (
     DEFAULT_FBULGE_PARAMS,
-    DEFAULT_T10,
-    DEFAULT_T90,
     FBULGE_MAX,
     FBULGE_MIN,
     _bulge_fraction_vs_tform,
@@ -21,12 +21,12 @@ from ..disk_bulge_kernels import (
     _burst_age_weights_from_params_vmap,
     _decompose_sfh_singlegal_into_bulge_disk_knots,
     _decompose_sfhpop_into_bulge_disk_knots,
-    _get_params_from_u_params,
-    _get_u_params_from_params,
     _linterp_vmap,
     calc_tform_kern,
     decompose_sfhpop_into_bulge_disk_knots,
 )
+
+DEFAULT_T10, DEFAULT_T90 = 2.0, 9.0
 
 
 def test_bulge_sfh():
@@ -48,26 +48,6 @@ def test_bulge_fraction_vs_tform():
     assert np.all(np.isfinite(fbulge))
     assert np.all(fbulge > FBULGE_MIN)
     assert np.all(fbulge < FBULGE_MAX)
-
-
-def test_param_bounding():
-    n_tests = 1_000
-    for __ in range(n_tests):
-        u_params = np.random.uniform(-5, 5, len(DEFAULT_FBULGE_PARAMS))
-
-        params = np.array(_get_params_from_u_params(u_params, DEFAULT_T10, DEFAULT_T90))
-        assert np.all(np.isfinite(params))
-
-        tcrit, frac_early, frac_late = params
-        assert DEFAULT_T10 <= tcrit <= DEFAULT_T90
-        assert FBULGE_MIN < frac_early < FBULGE_MAX
-        assert FBULGE_MIN < frac_late < FBULGE_MAX
-        assert frac_late < frac_early
-
-        inferred_u_params = _get_u_params_from_params(params, DEFAULT_T10, DEFAULT_T90)
-        assert np.all(np.isfinite(inferred_u_params)), params
-
-        assert np.allclose(u_params, inferred_u_params, rtol=0.01)
 
 
 def test_calc_tform_kern():
@@ -114,11 +94,19 @@ def test_decompose_sfh_into_bulge_disk_knots():
         gal_fburst = 10 ** np.random.uniform(lgfb_min, lgfb_max, n_gals)
 
         gal_burstshape_params = np.tile(DEFAULT_BURST_PARAMS, n_gals)
-        gal_burstshape_params = gal_burstshape_params.reshape((n_gals, 2))
+        gal_burstshape_params = gal_burstshape_params.reshape((n_gals, 3))
 
-        gal_burst_age_weights = _burst_age_weights_from_params_vmap(ssp_lg_age_yr, gal_burstshape_params)
+        gal_burst_age_weights = _burst_age_weights_from_params_vmap(
+            ssp_lg_age_yr,
+            gal_burstshape_params[:, 1],
+            gal_burstshape_params[:, 2],
+        )
 
-        age_weights_singleburst = _burst_age_weights_from_params(ssp_lg_age_yr, DEFAULT_BURST_PARAMS)
+        age_weights_singleburst = _burst_age_weights_from_params(
+            ssp_lg_age_yr,
+            DEFAULT_BURST_PARAMS.lgyr_peak,
+            DEFAULT_BURST_PARAMS.lgyr_max,
+        )
         age_weights_burstpop = np.tile(age_weights_singleburst, n_gals)
         age_weights_burstpop = age_weights_burstpop.reshape((n_gals, n_age))
         assert np.allclose(gal_burst_age_weights, age_weights_burstpop, rtol=0.001)
@@ -251,11 +239,19 @@ def test_decompose_sfh_singlegal_into_bulge_disk_knots_agrees_with_vmap():
     gal_fburst = 10 ** np.random.uniform(lgfb_min, lgfb_max, n_gals)
 
     gal_burstshape_params = np.tile(DEFAULT_BURST_PARAMS, n_gals)
-    gal_burstshape_params = gal_burstshape_params.reshape((n_gals, 2))
+    gal_burstshape_params = gal_burstshape_params.reshape((n_gals, 3))
 
-    gal_burst_age_weights = _burst_age_weights_from_params_vmap(ssp_lg_age_yr, gal_burstshape_params)
+    gal_burst_age_weights = _burst_age_weights_from_params_vmap(
+        ssp_lg_age_yr,
+        gal_burstshape_params[:, 1],
+        gal_burstshape_params[:, 2],
+    )
+    age_weights_singleburst = _burst_age_weights_from_params(
+        ssp_lg_age_yr,
+        DEFAULT_BURST_PARAMS.lgyr_peak,
+        DEFAULT_BURST_PARAMS.lgyr_max,
+    )
 
-    age_weights_singleburst = _burst_age_weights_from_params(ssp_lg_age_yr, DEFAULT_BURST_PARAMS)
     age_weights_burstpop = np.tile(age_weights_singleburst, n_gals)
     age_weights_burstpop = age_weights_burstpop.reshape((n_gals, n_age))
     assert np.allclose(gal_burst_age_weights, age_weights_burstpop, rtol=0.001)

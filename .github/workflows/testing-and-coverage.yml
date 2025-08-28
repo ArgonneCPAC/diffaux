@@ -16,11 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-<<<<<<< before updating
         python-version: ['3.12']
-=======
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
->>>>>>> after updating
 
     steps:
     - uses: actions/checkout@v4

@@ -27,11 +27,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-<<<<<<< before updating
         python-version: '3.12'
-=======
-        python-version: '3.11'
->>>>>>> after updating
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

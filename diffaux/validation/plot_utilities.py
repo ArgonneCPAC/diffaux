@@ -34,3 +34,9 @@ def fix_plotid(plotid):
     plotid = re.sub(r"\*", "", plotid)
     plotid = "_" + plotid if len(plotid) > 0 and plotid[0] != "_" else plotid
     return plotid
+
+
+def get_zindexes(zvalues, redshifts):
+    zindexes = [int(np.abs(redshifts - z).argmin()) for z in zvalues]
+    zs = [float(redshifts[i]) for i in zindexes]
+    return zindexes, zs

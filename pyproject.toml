@@ -65,31 +65,18 @@ exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
 
 [tool.pytest.ini_options]
 testpaths = [
-<<<<<<< before updating
-            "tests",
-	    "*/tests/",
-	    "*/*/tests/",
-]
-addopts = "--import-mode=importlib"
-
-[tool.black]
-line-length = 110
-target-version = ["py39"]
-
-[tool.isort]
-profile = "black"
-line_length = 110
-=======
     "tests",
+    "*/tests/",
+    "*/*/tests/",
     "src",
     "docs",
 ]
 addopts = "--doctest-modules --doctest-glob=*.rst"
->>>>>>> after updating
 
 [tool.ruff]
 line-length = 110
 target-version = "py39"
+
 [tool.ruff.lint]
 select = [
     # pycodestyle

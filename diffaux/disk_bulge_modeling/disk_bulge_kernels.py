@@ -4,16 +4,17 @@ Kernels for disk-bulge modeling
 from collections import OrderedDict
 
 import numpy as np
+from diffsky.utils.tw_utils import _tw_sigmoid
 from diffstar.utils import cumulative_mstar_formed
 from dsps.constants import SFR_MIN
 from dsps.sed.stellar_age_weights import calc_age_weights_from_sfh_table
+from dsps.sfh.diffburst import (
+    _pureburst_age_weights_from_params as _burst_age_weights_from_params,
+)
 from jax import jit as jjit
 from jax import lax, vmap
 from jax import numpy as jnp
 
-from ..legacy.roman_rubin_2023.dsps.experimental.diffburst import (
-    _age_weights_from_params as _burst_age_weights_from_params,
-)
 from .disk_knots import _disk_knot_kern, _disk_knot_vmap
 
 FBULGE_MIN = 0.05
@@ -24,48 +25,17 @@ BOUNDING_K = 0.1
 DEFAULT_FBULGE_EARLY = 0.75
 DEFAULT_FBULGE_LATE = 0.15
 
-
-DEFAULT_T10, DEFAULT_T90 = 2.0, 9.0
 DEFAULT_FBULGE_PDICT = OrderedDict(fbulge_tcrit=8.0, fbulge_early=0.5, fbulge_late=0.1)
 DEFAULT_FBULGE_PARAMS = np.array(list(DEFAULT_FBULGE_PDICT.values()))
 
 
 _linterp_vmap = jjit(vmap(jnp.interp, in_axes=(0, None, 0)))
 
-_A = (None, 0)
+_A = (None, 0, 0)
 _burst_age_weights_from_params_vmap = jjit(vmap(_burst_age_weights_from_params, in_axes=_A))
 
 _D = (None, 0, None, 0)
 calc_age_weights_from_sfh_table_vmap = jjit(vmap(calc_age_weights_from_sfh_table, in_axes=_D))
-
-
-@jjit
-def _sigmoid(x, x0, k, ymin, ymax):
-    height_diff = ymax - ymin
-    return ymin + height_diff * lax.logistic(k * (x - x0))
-
-
-@jjit
-def _inverse_sigmoid(y, x0, k, ymin, ymax):
-    lnarg = (ymax - ymin) / (y - ymin) - 1
-    return x0 - lax.log(lnarg) / k
-
-
-@jjit
-def _tw_cuml_kern(x, m, h):
-    """Triweight kernel version of an err function."""
-    z = (x - m) / h
-    val = -5 * z**7 / 69984 + 7 * z**5 / 2592 - 35 * z**3 / 864 + 35 * z / 96 + 1 / 2
-    val = jnp.where(z < -3, 0, val)
-    val = jnp.where(z > 3, 1, val)
-    return val
-
-
-@jjit
-def _tw_sigmoid(x, x0, tw_h, ymin, ymax):
-    height_diff = ymax - ymin
-    body = _tw_cuml_kern(x, x0, tw_h)
-    return ymin + height_diff * body
 
 
 @jjit
@@ -82,48 +52,6 @@ def _bulge_fraction_kernel(t, thalf, frac_early, frac_late, dt):
     """
     tw_h = dt / 6.0
     return _tw_sigmoid(t, thalf, tw_h, frac_early, frac_late)
-
-
-@jjit
-def _get_u_params_from_params(params, t10, t90):
-    fbulge_tcrit, fbulge_early, fbulge_late = params
-
-    t50 = (t10 + t90) / 2
-    u_fbulge_tcrit = _inverse_sigmoid(fbulge_tcrit, t50, BOUNDING_K, t10, t90)
-
-    x0 = (FBULGE_MIN + FBULGE_MAX) / 2
-    u_fbulge_early = _inverse_sigmoid(fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
-
-    x0_late = (fbulge_early + FBULGE_MIN) / 2
-    u_fbulge_late = _inverse_sigmoid(fbulge_late, x0_late, BOUNDING_K, fbulge_early, FBULGE_MIN)
-
-    u_params = u_fbulge_tcrit, u_fbulge_early, u_fbulge_late
-    return u_params
-
-
-@jjit
-def _get_params_from_u_params(u_params, t10, t90):
-    u_fbulge_tcrit, u_fbulge_early, u_fbulge_late = u_params
-
-    t50 = (t10 + t90) / 2
-    fbulge_tcrit = _sigmoid(u_fbulge_tcrit, t50, BOUNDING_K, t10, t90)
-
-    x0 = (FBULGE_MIN + FBULGE_MAX) / 2
-    fbulge_early = _sigmoid(u_fbulge_early, x0, BOUNDING_K, FBULGE_MIN, FBULGE_MAX)
-
-    x0_late = (fbulge_early + FBULGE_MIN) / 2
-    fbulge_late = _sigmoid(u_fbulge_late, x0_late, BOUNDING_K, fbulge_early, FBULGE_MIN)
-
-    params = fbulge_tcrit, fbulge_early, fbulge_late
-    return params
-
-
-@jjit
-def _bulge_fraction_vs_tform_u_params(t, t10, t90, u_params):
-    params = _get_params_from_u_params(u_params, t10, t90)
-    fbulge_tcrit, fbulge_early, fbulge_late = params
-    dt = t90 - t10
-    return _bulge_fraction_kernel(t, fbulge_tcrit, fbulge_early, fbulge_late, dt)
 
 
 @jjit
@@ -179,6 +107,30 @@ _B = (None, 0, 0)
 _bulge_sfh_vmap = jjit(vmap(_bulge_sfh, in_axes=_B))
 
 
+@jjit
+def _get_observed_quantity(t_obs, tarr, quantity):
+    q_obs = jnp.interp(t_obs, tarr, quantity)
+    return q_obs
+
+
+_C = (0, None, 0)  # map t_obs and sfh for each galaxy
+_get_observed_quantity_vmap = jjit(vmap(_get_observed_quantity, in_axes=_C))
+
+
+@jjit
+def get_observed_quantity_pop(t_obs, tarr, quantity):
+    """Calculate the observed quantity for population
+
+    Parameters
+    ----------
+    t_obs : times of observation, ndarray, shape(npop, )
+    tarr : times for histories, ndarray, shape(nt, )
+
+    quantity : history for quantity, ndarray, shape(npop, nt)
+    """
+    return _get_observed_quantity_vmap(t_obs, tarr, quantity)
+
+
 def decompose_sfhpop_into_bulge_disk_knots(
     gal_fbulge_params,
     gal_fknot,
@@ -214,10 +166,11 @@ def decompose_sfhpop_into_bulge_disk_knots(
     gal_fburst : ndarray, shape (n_gals, )
         Fraction of stellar mass in the burst population of each galaxy
 
-    gal_burstshape_params : ndarray, shape (n_gals, 2)
+    gal_burstshape_params : ndarray, shape (n_gals, 3)
         Parameters controlling P(τ) for burst population in each galaxy
-        lgyr_peak = gal_burstshape_params[:, 0]
-        lgyr_max = gal_burstshape_params[:, 1]
+        lgfburst = gal_burstshape_params[:, 0]
+        lgyr_peak = gal_burstshape_params[:, 1]
+        lgyr_max = gal_burstshape_params[:, 2]
 
     ssp_lg_age_gyr : ndarray, shape (n_age, )
         Grid in age τ at which the SSPs are computed, stored as log10(τ/Gyr)
@@ -253,7 +206,13 @@ def decompose_sfhpop_into_bulge_disk_knots(
 
     """
     ssp_lg_age_yr = ssp_lg_age_gyr + 9.0
-    gal_burst_age_weights = _burst_age_weights_from_params_vmap(ssp_lg_age_yr, gal_burstshape_params)
+    lgyr_peak = gal_burstshape_params[:, 1]
+    lgyr_max = gal_burstshape_params[:, 2]
+    gal_burst_age_weights = _burst_age_weights_from_params_vmap(
+        ssp_lg_age_yr,
+        lgyr_peak,
+        lgyr_max,
+    )
     return _decompose_sfhpop_into_bulge_disk_knots(
         gal_fbulge_params,
         gal_fknot,
@@ -349,8 +308,3 @@ def _decompose_sfhpop_into_bulge_disk_knots(
     age_weights = bulge_age_weights, dd_age_weights, knot_age_weights
     ret = (*masses, *age_weights, bulge_sfh, gal_frac_bulge_t_obs)
     return ret
-
-
-DEFAULT_FBULGE_U_PARAMS = _get_u_params_from_params(DEFAULT_FBULGE_PARAMS, DEFAULT_T10, DEFAULT_T90)
-_A = (0, 0, 0)
-_get_params_from_u_params_vmap = jjit(vmap(_get_params_from_u_params, in_axes=_A))
