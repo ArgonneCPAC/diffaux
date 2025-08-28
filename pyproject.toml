@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
-	     'numpy',
+	     'numpy>=2.0.2',
 ]
 
 [project.urls]
@@ -46,7 +46,7 @@ write_to = "diffaux/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
 [tool.setuptools]
-#packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
+packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
 package-dir = {diffaux = "diffaux"}
 include-package-data = true
 

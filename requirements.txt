@@ -1,9 +1,9 @@
-numpy
+numpy>=2.0
 scipy
 astropy
 matplotlib
 jax
-dsps
-diffstar
-diffsky
-diffstarpop
+dsps>=0.4.5
+diffstar>=0.3.4
+diffsky>=0.2.3
+diffstarpop>=0.0.2
