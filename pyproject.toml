@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
-	     'numpy',
+	     'numpy>=2.0.2',
 ]
 
 [project.urls]
@@ -46,7 +46,7 @@ write_to = "diffaux/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
 [tool.setuptools]
-#packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}}
+#packages = {find = {exclude=["tests*", "scripts*", "docs*", "notebooks*"]}} #breaks CI tests
 package-dir = {diffaux = "diffaux"}
 include-package-data = true
 
@@ -65,31 +65,19 @@ exclude = ["tests/*", "scripts*", "docs*", "notebooks*"]
 
 [tool.pytest.ini_options]
 testpaths = [
-<<<<<<< before updating
-            "tests",
-	    "*/tests/",
-	    "*/*/tests/",
-]
-addopts = "--import-mode=importlib"
-
-[tool.black]
-line-length = 110
-target-version = ["py39"]
-
-[tool.isort]
-profile = "black"
-line_length = 110
-=======
     "tests",
+    "*/tests/",
+    "*/*/tests/",
     "src",
     "docs",
 ]
-addopts = "--doctest-modules --doctest-glob=*.rst"
->>>>>>> after updating
+addopts = "--import-mode=importlib"
+#addopts = "--doctest-modules --doctest-glob=*.rst" didn't work
 
 [tool.ruff]
 line-length = 110
 target-version = "py39"
+
 [tool.ruff.lint]
 select = [
     # pycodestyle
