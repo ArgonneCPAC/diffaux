@@ -18,6 +18,14 @@ dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
 	     'numpy>=2.0.2',
+	     'scipy',
+	     'astropy',
+	     'matplotlib',
+	     'jax',
+	     'dsps>=0.4.5',
+	     'diffstar>=0.3.4',
+	     'diffsky>=0.2.3',
+	     'diffstarpop>=0.0.2',
 ]
 
 [project.urls]
