@@ -1,7 +1,6 @@
 """ """
 
 import numpy as np
-from halotools.utils import monte_carlo_from_cdf_lookup
 
 A = 10**-3.15
 gamma_e = -0.65
@@ -92,9 +91,12 @@ def monte_carlo_eddington_ratio(redshift, sfr_percentile):
     assert len(redshift) == 1, msg
 
     rate_table, prob_table = eddington_ratio_distribution(redshift[0])
-    return monte_carlo_from_cdf_lookup(
-        rate_table, prob_table, mc_input=1 - sfr_percentile
-    )
+    mc_input = 1 - sfr_percentile
+    return monte_carlo_from_cdf_lookup(rate_table, prob_table, mc_input)
+
+
+def monte_carlo_from_cdf_lookup(x_table, y_table, mc_input):
+    return np.interp(np.atleast_1d(mc_input), x_table, y_table)
 
 
 def monte_carlo_bh_acc_rate(redshift, black_hole_mass, sfr_percentile):
@@ -131,9 +133,9 @@ def monte_carlo_bh_acc_rate(redshift, black_hole_mass, sfr_percentile):
     >>> ngals = int(1e4)
     >>> sfr_percentile = np.random.uniform(0, 1, ngals)
     >>> black_hole_mass = 10**np.random.uniform(6, 11, ngals)
-    >>> edd_ratio, acc_rate = monte_carlo_bh_acc_rate(redshift,
-                                                      black_hole_mass,
-                                                      sfr_percentile)
+    >>> args = redshift, black_hole_mass, sfr_percentile
+    >>> edd_ratio, acc_rate = monte_carlo_bh_acc_rate(*args)
+
     """
     redshift = np.atleast_1d(redshift)
     msg = (
