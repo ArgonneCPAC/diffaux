@@ -1,10 +1,9 @@
-"""
-"""
-from astropy.utils.misc import NumpyRNGContext
+""" """
+
 import numpy as np
+from astropy.utils.misc import NumpyRNGContext
 
-
-__all__ = ('bh_mass_from_bulge_mass', 'monte_carlo_black_hole_mass')
+__all__ = ("bh_mass_from_bulge_mass", "monte_carlo_black_hole_mass")
 fixed_seed = 43
 
 
@@ -29,8 +28,8 @@ def bh_mass_from_bulge_mass(bulge_mass):
     >>> bulge_mass = np.logspace(8, 12, ngals)
     >>> bh_mass = bh_mass_from_bulge_mass(bulge_mass)
     """
-    prefactor = 0.49*(bulge_mass/100.)
-    return prefactor*(bulge_mass/1e11)**0.15
+    prefactor = 0.49 * (bulge_mass / 100.0)
+    return prefactor * (bulge_mass / 1e11) ** 0.15
 
 
 def monte_carlo_black_hole_mass(bulge_mass, seed=fixed_seed):
@@ -62,4 +61,4 @@ def monte_carlo_black_hole_mass(bulge_mass, seed=fixed_seed):
     """
     loc = np.log10(bh_mass_from_bulge_mass(bulge_mass))
     with NumpyRNGContext(seed):
-        return 10**np.random.normal(loc=loc, scale=0.28)
+        return 10 ** np.random.normal(loc=loc, scale=0.28)
