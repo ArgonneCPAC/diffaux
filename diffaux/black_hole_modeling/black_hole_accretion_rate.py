@@ -48,6 +48,7 @@ def eddington_ratio_distribution(redshift, npts=1000):
     )
     assert len(z) == 1, msg
     redshift = float(max(z[0], 0.0))
+    redshift = min(redshift, 5.0)  # No redshift evolution beyond z>5
     rate_table = np.logspace(-4, 0, npts)
     return (
         rate_table,
