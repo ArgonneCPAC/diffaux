@@ -1,7 +1,7 @@
 """ """
 
 import numpy as np
-from astropy.utils.misc import NumpyRNGContext
+from jax import random as jran
 
 __all__ = ("bh_mass_from_bulge_mass", "monte_carlo_black_hole_mass")
 fixed_seed = 43
@@ -22,17 +22,12 @@ def bh_mass_from_bulge_mass(bulge_mass):
     bh_mass : ndarray
         Numpy array of shape (ngals, ) storing black hole mass
 
-    Examples
-    --------
-    >>> ngals = int(1e4)
-    >>> bulge_mass = np.logspace(8, 12, ngals)
-    >>> bh_mass = bh_mass_from_bulge_mass(bulge_mass)
     """
     prefactor = 0.49 * (bulge_mass / 100.0)
     return prefactor * (bulge_mass / 1e11) ** 0.15
 
 
-def monte_carlo_black_hole_mass(bulge_mass, seed=fixed_seed):
+def monte_carlo_black_hole_mass(bulge_mass, ran_key):
     """
     Monte Carlo realization of the Kormendy & Ho (2013) fitting function
     for the Mbh--Mbulge power law relation.
@@ -43,8 +38,8 @@ def monte_carlo_black_hole_mass(bulge_mass, seed=fixed_seed):
         Numpy array of shape (ngals, ) storing the stellar mass of the bulge
         in units of Msun assuming h=0.7
 
-    seed : int, optional
-        Random number seed in the Monte Carlo. Default is 43.
+    ran_key : jax.random.key
+        Random number seed
 
     Returns
     -------
@@ -52,13 +47,10 @@ def monte_carlo_black_hole_mass(bulge_mass, seed=fixed_seed):
         Numpy array of shape (ngals, ) storing black hole mass in units of
         Msun assuming h=0.7
 
-    Examples
-    --------
-    >>> ngals = int(1e4)
-    >>> bulge_mass = np.logspace(8, 12, ngals)
-    >>> bh_mass = bh_mass_from_bulge_mass(bulge_mass)
-
     """
     loc = np.log10(bh_mass_from_bulge_mass(bulge_mass))
-    with NumpyRNGContext(seed):
-        return 10 ** np.random.normal(loc=loc, scale=0.28)
+    scale = 0.28
+    lg_bhm = jran.normal(ran_key, shape=bulge_mass.shape) * scale + loc
+    bh_mass = 10**lg_bhm
+
+    return bh_mass
