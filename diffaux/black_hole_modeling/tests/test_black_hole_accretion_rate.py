@@ -1,5 +1,3 @@
-""""""
-
 import numpy as np
 from jax import random as jran
 
@@ -18,9 +16,7 @@ def test_monte_carlo_eddington_ratio():
 
     for redshift in np.arange(0, 15):
         ran_key, test_key = jran.split(ran_key, 2)
-        sfr_percentile = jran.uniform(
-            test_key, minval=1e-4, maxval=1 - 1e-4, shape=(npts,)
-        )
+        sfr_percentile = jran.uniform(test_key, minval=1e-4, maxval=1 - 1e-4, shape=(npts,))
 
         edd_ratio = bhar.monte_carlo_eddington_ratio(redshift, sfr_percentile)
         assert np.all(np.isfinite(edd_ratio))
