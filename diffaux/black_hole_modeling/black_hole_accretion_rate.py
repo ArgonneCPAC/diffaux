@@ -34,7 +34,7 @@ def eddington_ratio_distribution(redshift, npts=1000):
     Notes
     -----
     The returned ``rate_table`` and ``pdf_table`` will be used as inputs to the
-    Halotools monte_carlo_from_cdf_lookup function to generate populations.
+    monte_carlo_from_cdf_lookup function to generate populations.
 
     Examples
     --------
