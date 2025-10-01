@@ -24,7 +24,7 @@ defusedxml==0.7.1
 distlib==0.3.8
 docutils==0.22
 exceptiongroup==1.3.0
-executing==2.0.1
+executing==2.2.1
 fastjsonschema==2.20.0
 filelock==3.18.0
 fonttools==4.59.0
