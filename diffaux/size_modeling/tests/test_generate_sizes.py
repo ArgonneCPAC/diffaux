@@ -7,19 +7,21 @@ from importlib.resources import files
 import numpy as np
 
 from diffaux.size_modeling.fit_size_data import (
-    Samples_zFit,
+    DEFAULT_FIT_FUNCTIONS,
+    DEFAULT_MIXED_FIT_FITTYPES,
+    DEFAULT_SIZE_FUNCTIONS,
+    Samples_MFit,
+    assemble_mixed_fit_parameters,
     generate_sizes,
-    read_fit_parameters,
-    zFitParameters,
 )
 
 TESTDATA_DRN = files("diffaux").joinpath("size_modeling/tests/testing_data")
 
 
 def test_generate_sizes(
-    lM_lo=9.0,
+    lM_lo=7.5,
     lM_hi=12.0,
-    Nm=4,
+    Nm=10,
     z_lo=0.0,
     z_hi=3.0,
     Nz=4,
@@ -27,16 +29,15 @@ def test_generate_sizes(
     color_Q=2,
     testdata_dir=TESTDATA_DRN,
     UVJcolor_cut=1.5,
-    scatter_hi=0.2,
-    scatter_lo=0.2,
+    scatter=0.2,
     read=True,
     fn="generate_sizes_test_data.txt",
     rtol=1e-4,
     variables=("logM", "z"),
     types=("SF", "Q"),
-    values=("R_med_{}", "scatter_up_{}", "scatter_down_{}"),
+    var="R_med_{}",
 ):
-    vals = [v.format(t) for t in list(types) for v in list(values)]
+    vals = [var.format(t) for t in list(types)]
     header = list(variables) + vals
     filename = os.path.join(testdata_dir, fn)
     if read:
@@ -51,22 +52,23 @@ def test_generate_sizes(
         z = np.repeat(z_values, Nm)
         logM = np.tile(logM_values, Nz)
 
-    # read in fit parameters and generate new size data
+    # assemble fit parameters and generate new size data
     results = {"logM": logM, "z": z}
-    fit_pars, _ = read_fit_parameters(zFitParameters)
+    fit_pars = assemble_mixed_fit_parameters(Samples_MFit)
     for color, t in zip([color_SF, color_Q], types):
         _res = generate_sizes(
             fit_pars,
             logM,
             z,
             np.repeat(color, Nm * Nz),
-            samples=Samples_zFit,
+            fit_types=DEFAULT_MIXED_FIT_FITTYPES,
+            samples=Samples_MFit,
+            size_funcs=DEFAULT_SIZE_FUNCTIONS,
+            fit_funcs=DEFAULT_FIT_FUNCTIONS,
             UVJcolor_cut=UVJcolor_cut,
-            scatter_hi=scatter_hi,
-            scatter_lo=scatter_lo,
+            scatter=scatter,
         )
-        for n, v in enumerate(values):
-            results[v.format(t)] = _res[n + 1]
+        results[var.format(t)] = _res[1]
 
     # test or save median values
     if read:

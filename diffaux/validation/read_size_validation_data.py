@@ -571,10 +571,14 @@ validation_info = {
         "xlabels": ["$\\bm{z}$", "$\\bm{z}$", "$\\bm{z}$", "$\\bm{z}$"],
         "ylabels": ["$\\bm{r_p}$ (kpc)", "$\\bm\\alpha$", "$\\bm\\beta$", "$\\bm\\log_{10}(M_p/M_\\odot)$"],
         "titles": [
-            "$\\bm{{r_p}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
-            "$\\bm{{\\alpha}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
-            "$\\bm{{\\beta}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
-            "$\\bm{{\\log_{10}(M_p/M_\\odot)}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
+            "$\\bm{{r_p}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*"
+            "(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
+            "$\\bm{{\\alpha}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*"
+            "(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
+            "$\\bm{{\\beta}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*"
+            "(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
+            "$\\bm{{\\log_{10}(M_p/M_\\odot)}}$: $\\bm{{R_e = r_p*(M^*/M_p)^{{\\alpha}}*"
+            "(0.5*(1 + (M^*/M_p)^6))^{{(\\beta - \\alpha)/6}}}}$",
         ],
         "x-values": "z_med_{}",
         "kawinwanichakij_2021": {
@@ -584,8 +588,16 @@ validation_info = {
             "skip_header": 3,
             "x_colnames": ["z_med"],
             "x_columns": [0],
-            "data_colnames": ["alpha_{}", "dalpha_{}+", "beta_{}", "dbeta_{}+",
-                              "rp_{}", "drp_{}+", "logMp_{}", "dlogMp_{}+"],
+            "data_colnames": [
+                "alpha_{}",
+                "dalpha_{}+",
+                "beta_{}",
+                "dbeta_{}+",
+                "rp_{}",
+                "drp_{}+",
+                "logMp_{}",
+                "dlogMp_{}+",
+            ],
             "copy_from_common": True,
             "copy_columns": "z_med",
             "marker": "D",

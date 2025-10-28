@@ -6,11 +6,11 @@ import numpy as np
 from scipy.stats import binned_statistic
 
 from ..size_modeling.fit_size_data import (
-    _sigmoid,
     _linear,
+    _sigmoid,
     get_color_mask,
     median_size_vs_z,
-    )
+)
 from .plot_utilities import get_nrow_ncol, save_fig
 
 matplotlib.rc("text.latex", preamble=r"\usepackage{bm}")
@@ -37,8 +37,8 @@ def plot_generated_sizes(
     NM=6,
     plotdir=PLOT_DRN,
     fontsize=12,
-    yscale='log',
-    xtitle='',
+    yscale="log",
+    xtitle="",
     pltname="GalaxySizes_vs_Mstar_zbins_{}.png",
 ):
     # logM_bins = np.linspace(np.floor(log_Mstar), np.ceil(log_Mstar)
@@ -156,7 +156,11 @@ def plot_fits(
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
     colors = ("blue", "red")  # for simple plot
     for sample, ax_row, color in zip(samples, ax_all, colors):
-        xkey = val_info["x-values"].format(sample) if '{}' in val_info["x-values"] else val_info["x-values"] + f"_{sample}"
+        xkey = (
+            val_info["x-values"].format(sample)
+            if "{}" in val_info["x-values"]
+            else val_info["x-values"] + f"_{sample}"
+        )
         X = data_vectors[xkey]
         for par, ax, dYp, dYn, xlabel, ylabel in zip(
             parameters,
@@ -178,7 +182,7 @@ def plot_fits(
                     idx = val_info[author]["samples"].index(sample)
                     mcolor = val_info[author]["colors"][idx]
                     xcol = val_info["x-values"]
-                    xcol = xcol.format(sample) if '{}' in xcol else xcol
+                    xcol = xcol.format(sample) if "{}" in xcol else xcol
                     yerr = np.fmax(data[author][dYp.format(sample)], data[author][dYn.format(sample)])
                     # mask for missing values
                     yvalues = data[author][fit_key]
@@ -202,10 +206,10 @@ def plot_fits(
             Xsort = np.sort(X)
             if func == _sigmoid:
                 label = "$\\bm{{{:.2g}+({:.2g}-{:.2g})/(1+\\exp(-{:.2g}*({} -{:.3g})))}}$".format(
-                popt[2], popt[3], popt[2], popt[1], fit_label, popt[0]
+                    popt[2], popt[3], popt[2], popt[1], fit_label, popt[0]
                 )
             elif func == _linear:
-                label = "$\\bm{{{:.2g}+({:.2g}*{})}}$".format(popt[0], popt[1], fit_label)
+                label = f"$\\bm{{{popt[0]:.2g}+({popt[1]:.2g}*{fit_label})}}$"
             else:
                 print("Unknown function")
             ax.plot(Xsort, func(Xsort, *popt), color="black", label=label)
