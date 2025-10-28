@@ -1,0 +1,8 @@
+\caption{The best-fitting parameters from double power law for all galaxies, mostly dominated by star-forming galaxies
+   z      \alpha          beta       R_p          log Mp 
+  0.37   0.09   0.03   0.37 0.03   3.8   0.3     10.3 0.1
+  0.79   0.10   0.02   0.45 0.09   4.0   0.4     10.7 0.2
+  1.24   0.13   0.01   0.53 0.17   4.2   0.4     11.1 0.2
+  1.72   0.11   0.03   0.50 0.29   3.7   0.8    11.1 0.5
+  2.24   0.11   0.02   0.42 0.25   3.1   0.5    11.0 0.3
+  2.69   0.06   0.04   0.38 0.20   2.8    0.4     10.9 0.3

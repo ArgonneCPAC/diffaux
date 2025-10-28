@@ -1,4 +1,4 @@
-"""OA
+"""
 Module to assemble and fit trends in data vectors for selected data samples
 """
 import os
@@ -30,7 +30,13 @@ def get_data_vector(
     yvec = [np.asarray([]) for yname in val_info[Y]]
     dyvec = [np.asarray([]) for yname in val_info[Y]]
 
+    values = {}
+
     for k, v in data.items():
+        samples = val_info[k]['samples']
+        if sample not in samples:
+            print('Skipping sample {} (N/A) for author {}'.format(sample, k))
+            continue
         wave = val_info[k]["wavelength"]
         if wave >= lambda_min and wave <= lambda_max:
             print(f"Processing {k} {wave}")
@@ -40,7 +46,7 @@ def get_data_vector(
             ):
                 mask = np.abs(v[yn.format(sample)]) > 0.0
                 if add_xvec:
-                    xvec = np.concatenate((xvec, v[val_info[X]][mask]))
+                    xvec = np.concatenate((xvec, v[val_info[X].format(sample)][mask]))
                     add_xvec = False
                 y = np.concatenate((y, v[yn.format(sample)][mask]))
                 yerr = np.fmax(v[dynp.format(sample)], v[dynn.format(sample)])
@@ -53,8 +59,8 @@ def get_data_vector(
     assert all([len(xvec) == len(y) for y in yvec]), "Mismatch in assembled data vectors"
 
     # convert any lists to dicts
-    values = {}
-    values[val_info[X] + f"_{sample}"] = xvec
+    xkey = val_info[X].format(sample) if '{}' in val_info[X] else val_info[X] + f"_{sample}"
+    values[xkey] = xvec
     for y, dy, yname, dyname in zip(yvec, dyvec, val_info[Y], val_info[dYp]):
         values[yname.format(sample)] = y
         values[dyname.format(sample)] = dy
@@ -67,12 +73,8 @@ def _sigmoid(x, x0, k, ymin, ymax):
     return ymin + height_diff / (1 + np.exp(-k * (x - x0)))
 
 
-# The variable xtp is not a free parameter,
-# it is simply the abscissa value at which the normalization free
-# parameter ytp is defined
-def _sig_slope(x, xtp, ytp, x0, slope_k, lo, hi):
-    slope = _sigmoid(x, x0, slope_k, lo, hi)
-    return ytp + slope * (x - xtp)
+def _linear(x, ymin, slope):
+    return ymin + slope * x
 
 
 SigmoidParameters = namedtuple("SigmoidParameters", ("x0", "k", "ymin", "ymax"))
@@ -89,6 +91,54 @@ beta_Q_i = SigmoidParameters(10.0, 8.0, 0.4, 1.2)
 
 zFitParams_initial = zFitParameters(B_SF_i, beta_SF_i, B_Q_i, beta_Q_i)
 
+Samples_MFit = ["Starforming", "Quiescent"]
+Parameters_MFit = validation_info["Re_vs_Mstar"]["y-values"]
+Xvalue_MFit = validation_info["Re_vs_Mstar"]["x-values"]
+Names_MFit = [p.format(s) for s in Samples_MFit for p in Parameters_MFit]
+MFitParameters = namedtuple("MFitParameters", Names_MFit)
+
+A_SF_i= SigmoidParameters(0.1, 2.0, 10.0, 3.5)
+alpha_SF_i = SigmoidParameters(0.1, 1.0, 0.3, 0.15)
+A_Q_i = SigmoidParameters(0.5, 2.0, 6.0, 1.0)
+alpha_Q_i = SigmoidParameters(1.0, 1.0, 0.6, 0.5)
+
+MFitParams_initial = MFitParameters(A_SF_i, alpha_SF_i, A_Q_i, alpha_Q_i)
+
+LinearParameters = namedtuple("LinearParameters", ("ymin", "slope"))
+
+Samples_MFit2 = ["Starforming", "Quiescent"]
+Parameters_MFit2 = validation_info["Re_vs_Mstar2"]["y-values"]
+Xvalue_MFit2 = validation_info["Re_vs_Mstar2"]["x-values"]
+Names_MFit2 = [p.format(s) for s in Samples_MFit2 for p in Parameters_MFit2]
+MFit2Parameters = namedtuple("MFit2Parameters", Names_MFit2)
+
+rp_SF_Sig_i= SigmoidParameters(0.5, 10.0, 5.4, 4.95)
+alpha_SF_Sig_i = SigmoidParameters(0.9, 10.0, 0.49, 0.17)
+beta_SF_Sig_i = SigmoidParameters(0.5, 10.0, 0.62, 0.27)
+logMp_SF_Sig_i = SigmoidParameters(0.6, 10., 10.6, 11.0)
+rp_Q_Sig_i = SigmoidParameters(0.5, 97.0, 2.5, 1.9)
+alpha_Q_Sig_i = SigmoidParameters(0.9, 10.0, 0.15, 0.10)
+beta_Q_Sig_i = SigmoidParameters(0.6, 20.0, 0.63, 0.68)
+logMp_Q_Sig_i = SigmoidParameters(0.6, 10.0, 10.3, 10.6)
+
+MFit2Params_Sig_initial = MFit2Parameters(rp_SF_Sig_i, alpha_SF_Sig_i,
+                                          beta_SF_Sig_i, logMp_SF_Sig_i,
+                                          rp_Q_Sig_i, alpha_Q_Sig_i,
+                                          beta_Q_Sig_i, logMp_Q_Sig_i)
+
+rp_SF_Lin_i= LinearParameters(5.6, -0.8)
+alpha_SF_Lin_i = LinearParameters(0.16, 0.02)
+beta_SF_Lin_i = LinearParameters(0.7, -0.5)
+logMp_SF_Lin_i = LinearParameters(10.5, 0.3)
+rp_Q_Lin_i = LinearParameters(2.0, -0.03)
+alpha_Q_Lin_i = LinearParameters(0.13, -0.02)
+beta_Q_Lin_i = LinearParameters(0.6, 0.09)
+logMp_Q_Lin_i = LinearParameters(10.1, 0.5)
+
+MFit2Params_Lin_initial = MFit2Parameters(rp_SF_Lin_i, alpha_SF_Lin_i,
+                                          beta_SF_Lin_i, logMp_SF_Lin_i,
+                                          rp_Q_Lin_i, alpha_Q_Lin_i,
+                                          beta_Q_Lin_i, logMp_Q_Lin_i)
 
 def collect_data_vectors(data, samples, validation_info, fit_type="Re_vs_z", lambda_min=0.5, lambda_max=1.0):
     data_vectors = {}
@@ -113,16 +163,21 @@ def fit_parameters(data_vectors, Xvalue, p0_values, func=_sigmoid, error_prefix=
         fits[name] = {}
         p0 = getattr(p0_values, name)
         sample = name.split("_")[-1]
-        X = data_vectors["_".join([Xvalue, sample])]
+        xkey = Xvalue.format(sample) if '{}' in Xvalue else "_".join([Xvalue, sample])
+        X = data_vectors[xkey]
         y = data_vectors[name]
         dy = data_vectors[error_prefix + name + error_suffix]
-        popt, pcov = curve_fit(func, X, y, sigma=dy, p0=p0, absolute_sigma=True)
-        perr = np.sqrt(np.diag(pcov))
-        fits[name]["popt"] = popt
-        fits[name]["perr"] = perr
-        fits[name]["pcov"] = pcov
-        print("Fit parameters: ", name, popt)
-        print("Errors: ", name, perr)
+        try:
+            popt, pcov = curve_fit(func, X, y, sigma=dy, p0=p0, absolute_sigma=False)
+            perr = np.sqrt(np.diag(pcov))
+            fits[name]["popt"] = popt
+            fits[name]["perr"] = perr
+            fits[name]["pcov"] = pcov
+            print("Fit parameters: ", name, popt)
+            if all(np.isfinite(perr)):
+                print("Errors: ", name, perr)
+        except Exception as e:
+            print(f"Unexpected error for {name}: {e}")
 
     return fits
 
@@ -166,9 +221,54 @@ def read_fit_parameters(
 
     return fit_pars, fits
 
+DEFAULT_MIXED_FIT_NAMEDTUPLES = {"Starforming": MFitParameters,
+                                 "Quiescent": MFit2Parameters,
+                              }
+DEFAULT_MIXED_FIT_FITTYPES = {"Starforming": "Re_vs_Mstar",
+                               "Quiescent": "Re_vs_Mstar2",
+                              }
+DEFAULT_MIXED_FIT_FILENAMES = {"Starforming": "{}_fit_parameters.pkl",
+                               "Quiescent": "{}_fit_parameters_berrorx4.pkl",
+                              }
+                              
+
+def assemble_mixed_fit_parameters(samples,
+                                  namedtuples=DEFAULT_MIXED_FIT_NAMEDTUPLES, 
+                                  fit_types=DEFAULT_MIXED_FIT_FITTYPES,
+                                  plknames=DEFAULT_MIXED_FIT_FILENAMES,
+                                  ):
+    """
+    namedtuples: dictionary of named tuples for mixed fits
+    fit_types: dictionary of fit-types for mixed fits
+    pklnames: dictionary of filename templates for mixed fits
+
+    returns:
+    fit_pars: dictionary of possible fit parameters for supplied fit_type 
+    """
+    
+    fit_pars = {}
+    for sample in samples:    
+        fit_pars[sample], _ = read_fit_parameters(namedtuples[sample],
+                                                  fit_type=fit_types[sample],
+                                                  fn=plknames[sample])
+
+    return fit_pars
+
 
 def median_size_vs_z(z, B, beta):
     Re_med = B * np.power(1 + z, -beta)
+    return Re_med
+
+
+def median_size_vs_Mstar(M, A, alpha, M0=5e10):
+    Re_med = A * np.power(M/M0, alpha)
+    return Re_med
+
+
+def median_size_vs_Mstar2(M, rp, alpha, beta, logMp, delta=6):
+    Mp = np.power(10, logMp)
+    Re_med = rp * np.power(M/Mp, alpha) * 0.5 * np.power((1 + np.power(M/Mp, delta)),
+                                                         (beta-alpha)/delta)
     return Re_med
 
 
@@ -186,6 +286,8 @@ def get_color_mask(color, sample, UVJcolor_cut=1.5, UVJ=True):
             print("Unknown color option")
     return mask
 
+DEFAULT_FIT_FUNCTIONS = {"Starforming": _sigmoid, "Quiescent": _linear}
+DEFAULT_SIZE_FUNCTIONS = {"Starforming": median_size_vs_Mstar, "Quiescent": median_size_vs_Mstar2}
 
 def get_median_sizes(
     fit_parameters,
@@ -194,20 +296,22 @@ def get_median_sizes(
     color,
     Ngals,
     samples,
+    fit_types=DEFAULT_MIXED_FIT_FITTYPES,
     UVJcolor_cut=1.5,
-    fit_func=_sigmoid,
-    size_func=median_size_vs_z,
+    fit_funcs=DEFAULT_FIT_FUNCTIONS,
+    size_funcs=DEFAULT_SIZE_FUNCTIONS,
 ):
     """
-    fit_parameters: named ntuple of fit parameters, which is read in using read_fit_parameters
+    fit_parameters: dictionary of named ntuple of fit parameters; read in using read_fit_parameters
     log_Mstar: array of length (Ngals), log10(stellar masses) of galaxies in units of Msun
     redshift: array of length Ngals, redshift of galaxies
     color: array length Ngals, color of galaxies
     Ngals: length of arrays stroing galaxy information
     samples: galaxy samples to process; sizes are generated for each sample
+    fit_types: dictionary of fit_types for each sample
     UVJcolor_cut: color cut that selects between galaxy samples
-    fit_func: function used by fit_parameters
-    size_func: function used to generate medisn size
+    fit_funcs: dictionary of functions used by fit_parameters for each galaxy sample
+    size_funcs: dictionary of functions used to generate medisn size for each galaxy sample
 
     returns
     sizes: array length (Ngals), size in kpc
@@ -215,20 +319,21 @@ def get_median_sizes(
 
     R_med = np.zeros(Ngals)
     # determine parameter values from fit_parameters
+    print("Using fit parameters: ", fit_parameters)
     for sample in samples:
         mask = get_color_mask(color, sample, UVJcolor_cut=UVJcolor_cut)
-        parameters = [par for par in fit_parameters._fields if sample in par]
-        func_pars = [getattr(fit_parameters, par) for par in parameters]
-        func_values = [fit_func(log_Mstar[mask], *fpar) for fpar in func_pars]
-        R_med[mask] = size_func(redshift[mask], *func_values)
-
+        parameters = [par for par in fit_parameters[sample]._fields if sample in par]
+        func_pars = [getattr(fit_parameters[sample], par) for par in parameters]
+        fit_func = fit_funcs[sample]
+        size_func = size_funcs[sample]
+        if fit_types[sample] == "Re_vs_z":
+            func_values = [fit_func(log_Mstar[mask], *fpar) for fpar in func_pars]
+            R_med[mask] = size_func(redshift[mask], *func_values)
+        elif "Re_vs_Mstar" in fit_types[sample] :
+            func_values = [fit_func(redshift[mask], *fpar) for fpar in func_pars]
+            Mstar = np.power(10, log_Mstar[mask])
+            R_med[mask] = size_func(Mstar, *func_values)
     return R_med
-
-
-def get_scatter(R_med, scatter_hi, scatter_lo):
-    scatter_up = R_med * (np.power(10, scatter_hi) - 1)
-    scatter_down = R_med * (1 - np.power(10, -scatter_lo))
-    return scatter_up, scatter_down
 
 
 def generate_sizes(
@@ -236,25 +341,26 @@ def generate_sizes(
     log_Mstar,
     redshift,
     color,
+    fit_types=DEFAULT_MIXED_FIT_FITTYPES,
     samples=("Starforming", "Quiescent"),
     UVJcolor_cut=1.5,
-    scatter_hi=0.2,
-    scatter_lo=0.2,
-    fit_func=_sigmoid,
-    size_func=median_size_vs_z,
+    scatter=0.15,
+    fit_funcs=DEFAULT_FIT_FUNCTIONS,
+    size_funcs=DEFAULT_SIZE_FUNCTIONS,
+    min_size=0.5,
+    max_size=40.,
 ):
     """
-    fit_parameters: named ntuple of fit parameters, which is read in using read_fit_parameters
+    fit_parameters: dictionary of named ntuple of fit parameters; read in using read_fit_parameters
     log_Mstar: array of length (Ngals), log10(stellar masses) of galaxies in units of Msun
     redshift: array of length Ngals, redshift of galaxies
     color: array length Ngals, color of galaxies
+    fit_types: dictionary of fit_types for each sample
     samples: galaxy samples to process; sizes are generated for each sample
     UVJcolor_cut: color cut that selects between galaxy samples
-    scatter_lo:  scatter in dex below median size
-    scatter_hi:  scatter in dex above median size
-    fit_func: function used by fit_parameters
-    size_func: function used to generate medisn size
-
+    scatter:  scatter in dex to use for log-normal distribution
+    fit_funcs: dictionary of functions used by fit_parameters for each galaxy sample
+    size_funcs: dictionary of functions used to generate medisn size for each galaxy sample
 
     returns
     sizes: array length (Ngals), size in kpc
@@ -271,16 +377,18 @@ def generate_sizes(
         color,
         Ngals,
         samples,
+        fit_types=fit_types,
         UVJcolor_cut=UVJcolor_cut,
-        fit_func=fit_func,
-        size_func=size_func,
+        fit_funcs=fit_funcs,
+        size_funcs=size_funcs,
     )
-    scatter_up, scatter_down = get_scatter(R_med, scatter_hi=scatter_hi, scatter_lo=scatter_lo)
 
-    sizes_hi = np.random.normal(loc=R_med, scale=scatter_hi, size=Ngals)
-    sizes_lo = np.random.normal(loc=R_med, scale=scatter_lo, size=Ngals)
-
-    return np.where(sizes_lo < R_med, sizes_lo, sizes_hi), R_med, scatter_up, scatter_down
+    logRe = np.random.normal(loc=np.log10(R_med), scale=scatter, size=Ngals)
+    #clip sizes
+    logRe = np.where(logRe > np.log10(max_size),  np.log10(max_size), logRe) 
+    logRe = np.where(logRe < np.log10(min_size),  np.log10(min_size), logRe) 
+    
+    return np.power(10, logRe), R_med
 
 
 def assign_p0_values_to_fits(p0_values, fit_type="Re_vs_z"):
