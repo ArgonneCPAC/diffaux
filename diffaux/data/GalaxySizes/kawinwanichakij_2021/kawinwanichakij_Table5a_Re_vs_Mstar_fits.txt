@@ -1,0 +1,7 @@
+\tablecaption{Best-fit Parameters of Power-law Fit to the  Size-Mass Relation for Quiescent and Star-forming Galaxies
+       Quiescent (DBETA MUTIPLIED BY 4 TO GET BETTER FIT AT HIGH Z)  Star-forming
+z      alpha  dalpha beta 4*dbeta  rp  drp logMp dlogMp  alpha  dalpha beta dbeta  rp  drp   logMp dlogMp
+0.3    0.14   0.01   0.63  0.04  2.1 0.05 10.2 0.05    0.17   0.01   0.62 0.02  5.4   0.1    10.6   0.05 
+0.5    0.10   0.01   0.63  0.04  1.9 0.05 10.3 0.05    0.18   0.01   0.39 0.01  5.3   0.1    10.6   0.05
+0.7    0.10   0.01   0.67  0.04  2.0 0.05 10.5 0.05    0.16   0.01   0.27 0.01  4.9   0.1    10.7   0.05
+0.9    0.13   0.01   0.68  0.04  2.1 0.05 10.6 0.05    0.19   0.01   0.29 0.02  5.0   0.1    10.8   0.05

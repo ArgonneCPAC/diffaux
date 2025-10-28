@@ -1,0 +1,11 @@
+# Parameters for fits to Re = gamma*(M^*/M0)**alpha * (1+M^*/M0)**(beta-alpha)
+# Units for M0 = (Msun/h**2) h=0.678
+type	         alpha   beta	 gamma M0
+early		 0.11	 0.60	 1.75  1.35e10
+late		 0.22	 1.24	 8.83  4.49e11
+elliptical	 0.13	 0.68	 2.23  2.96e10
+spiral		 0.16	 5.41	 8.96  1.93e12
+quiescent	-0.02	 0.65	 1.58  1.11e10 
+star-forming	 0.23	 0.41	 10.72 4.90e11	 
+B/T<0.5		 0.14	 0.71	 1.53  1.72e10
+B/T>0.5		 0.18	 0.78	 6.34  1.57e11

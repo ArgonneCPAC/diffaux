@@ -5,7 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import binned_statistic
 
-from ..size_modeling.fit_size_data import _sigmoid, get_color_mask, median_size_vs_z
+from ..size_modeling.fit_size_data import (
+    _linear,
+    _sigmoid,
+    get_color_mask,
+    median_size_vs_z,
+)
 from .plot_utilities import get_nrow_ncol, save_fig
 
 matplotlib.rc("text.latex", preamble=r"\usepackage{bm}")
@@ -32,6 +37,8 @@ def plot_generated_sizes(
     NM=6,
     plotdir=PLOT_DRN,
     fontsize=12,
+    yscale="log",
+    xtitle="",
     pltname="GalaxySizes_vs_Mstar_zbins_{}.png",
 ):
     # logM_bins = np.linspace(np.floor(log_Mstar), np.ceil(log_Mstar)
@@ -115,12 +122,13 @@ def plot_generated_sizes(
 
             ax.legend(loc="best")
             ax.set_title(ztitle)
+            ax.set_yscale(yscale)
             ax.set_xlabel(val_info["xlabel"])
             ax.set_ylabel(val_info["ylabel"])
     short_titles = [val_info[author]["short_title"] for author in authors]
     author_list = "_".join(authors)
     title_list = "+".join(short_titles)
-    fig.suptitle(f"Generated Sizes and {title_list} Data", y=0.92, fontweight="bold")
+    fig.suptitle(f"Generated Sizes and {title_list} Data {xtitle}", y=0.92, fontweight="bold")
     save_fig(fig, plotdir, pltname.format(author_list))
 
     return
@@ -148,7 +156,12 @@ def plot_fits(
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
     colors = ("blue", "red")  # for simple plot
     for sample, ax_row, color in zip(samples, ax_all, colors):
-        M = data_vectors[val_info["x-values"] + f"_{sample}"]
+        xkey = (
+            val_info["x-values"].format(sample)
+            if "{}" in val_info["x-values"]
+            else val_info["x-values"] + f"_{sample}"
+        )
+        X = data_vectors[xkey]
         for par, ax, dYp, dYn, xlabel, ylabel in zip(
             parameters,
             ax_row,
@@ -161,12 +174,15 @@ def plot_fits(
             y = data_vectors[fit_key]
             dy = data_vectors[dYp.format(sample)]
             if not authors:
-                ax.errorbar(M, y, yerr=dy, label=fit_key, color=color, marker="o", linestyle="")
+                ax.errorbar(X, y, yerr=dy, label=fit_key, color=color, marker="o", linestyle="")
             elif data:  # fancy plot with full legend
                 for author in authors:
+                    if sample not in val_info[author]["samples"]:
+                        continue
                     idx = val_info[author]["samples"].index(sample)
                     mcolor = val_info[author]["colors"][idx]
                     xcol = val_info["x-values"]
+                    xcol = xcol.format(sample) if "{}" in xcol else xcol
                     yerr = np.fmax(data[author][dYp.format(sample)], data[author][dYn.format(sample)])
                     # mask for missing values
                     yvalues = data[author][fit_key]
@@ -187,11 +203,16 @@ def plot_fits(
             else:
                 print(" Missing data dict")
             popt = fits[fit_key]["popt"]
-            Msort = np.sort(M)
-            label = "$\\bm{{{:.2g}+({:.2g}-{:.2g})/(1+\\exp(-{:.2g}*({} -{:.3g})))}}$".format(
-                popt[2], popt[3], popt[2], popt[1], fit_label, popt[0]
-            )
-            ax.plot(Msort, func(Msort, *popt), color="black", label=label)
+            Xsort = np.sort(X)
+            if func == _sigmoid:
+                label = "$\\bm{{{:.2g}+({:.2g}-{:.2g})/(1+\\exp(-{:.2g}*({} -{:.3g})))}}$".format(
+                    popt[2], popt[3], popt[2], popt[1], fit_label, popt[0]
+                )
+            elif func == _linear:
+                label = f"$\\bm{{{popt[0]:.2g}+({popt[1]:.2g}*{fit_label})}}$"
+            else:
+                print("Unknown function")
+            ax.plot(Xsort, func(Xsort, *popt), color="black", label=label)
             ax.set_xlabel(xlabel, fontsize=fontsize)
             ax.set_ylabel(ylabel, fontsize=fontsize)
             ax.set_title(sample)
