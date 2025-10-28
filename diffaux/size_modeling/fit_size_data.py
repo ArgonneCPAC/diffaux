@@ -228,7 +228,7 @@ DEFAULT_MIXED_FIT_FITTYPES = {"Starforming": "Re_vs_Mstar",
                                "Quiescent": "Re_vs_Mstar2",
                               }
 DEFAULT_MIXED_FIT_FILENAMES = {"Starforming": "{}_fit_parameters.pkl",
-                               "Quiescent": "{}_fit_parameters_berrorx4.pkl",
+                               "Quiescent": "{}_betaQ_adjusted_fit_parameters.pkl",
                               }
                               
 
