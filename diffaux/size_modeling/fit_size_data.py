@@ -77,6 +77,12 @@ def _linear(x, ymin, slope):
     return ymin + slope * x
 
 
+def zhang_et_al_fit(M, alpha, beta, gamma, M0, h=0.678):
+    # correct M to units of Msun/h**2
+    M = M / (h * h)
+    return gamma * (M / M0) ** alpha * (1 + M / M0) ** (beta - alpha)
+
+
 SigmoidParameters = namedtuple("SigmoidParameters", ("x0", "k", "ymin", "ymax"))
 Samples_zFit = ["Starforming", "Quiescent"]
 Parameters_zFit = validation_info["Re_vs_z"]["y-values"]
