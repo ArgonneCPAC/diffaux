@@ -55,7 +55,7 @@ def plot_generated_sizes(
     pt_colors = ("royalblue", "tomato")  # for simple plot
     med_colors = ("blue", "red")
     sample_labels = sample_labels if sample_labels is not None else samples
-    
+
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
     for ax, z_min, z_max in zip_longest(ax_all.flat, z_bins[0:-1], z_bins[1:]):
         if z_min is None:
@@ -128,14 +128,11 @@ def plot_generated_sizes(
                                 linestyle="",
                                 marker=val_info[author]["marker"],
                             )
-        if data_fits is not None:
-            if fit_zvalue >= z_min and fit_zvalue < z_max:
-                for (k, v), f in zip(data_fits.items(), fit_colors):
-                    if ignore_fit_key not in k:
-                        Mtest = np.logspace(7.5, 11.5, 8)
-                        ax.plot(np.log10(Mtest),
-                                fit_function(Mtest, *v),
-                                label=fit_label.format(k), color=f)
+        if data_fits is not None and fit_zvalue >= z_min and fit_zvalue < z_max:
+            for (k, v), f in zip(data_fits.items(), fit_colors):
+                if ignore_fit_key not in k:
+                    Mtest = np.logspace(7.5, 11.5, 8)
+                    ax.plot(np.log10(Mtest), fit_function(Mtest, *v), label=fit_label.format(k), color=f)
 
         ax.legend(loc="best", ncol=2)
         ax.set_title(ztitle)
