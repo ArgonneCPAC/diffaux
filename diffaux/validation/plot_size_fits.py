@@ -10,6 +10,7 @@ from ..size_modeling.fit_size_data import (
     _sigmoid,
     get_color_mask,
     median_size_vs_z,
+    zhang_et_al_fit,
 )
 from .plot_utilities import get_nrow_ncol, save_fig
 
@@ -29,6 +30,13 @@ def plot_generated_sizes(
     authors,
     data,
     val_info,
+    data_fits=None,
+    fit_colors=("yellow", "c", "coral", "dodgerblue", "orange", "cornflowerblue"),
+    fit_zvalue=0.1,
+    ignore_fit_key="B/T",
+    fit_label="{} Zhang (2019)",
+    fit_function=zhang_et_al_fit,
+    sample_labels=None,
     z_lo=0.0,
     z_hi=3.0,
     Nz=7,
@@ -46,6 +54,7 @@ def plot_generated_sizes(
     nrow, ncol = get_nrow_ncol(len(z_bins))
     pt_colors = ("royalblue", "tomato")  # for simple plot
     med_colors = ("blue", "red")
+    sample_labels = sample_labels if sample_labels is not None else samples
 
     fig, ax_all = plt.subplots(nrow, ncol, figsize=(ncol * 7, nrow * 5))
     for ax, z_min, z_max in zip_longest(ax_all.flat, z_bins[0:-1], z_bins[1:]):
@@ -53,11 +62,11 @@ def plot_generated_sizes(
             ax.set_visible(False)
             continue
         zmask = (redshift >= z_min) & (redshift < z_max)
-        for sample, pcolor, med_color in zip(samples, pt_colors, med_colors):
+        for sample, pcolor, med_color, slabel in zip(samples, pt_colors, med_colors, sample_labels):
             cmask = get_color_mask(color_gal, sample)
             mask = zmask & cmask
             ztitle = f"${z_min:.1f} \\leq z < {z_max:.1f}$"
-            ax.scatter(log_Mstar[mask], Re[mask], color=pcolor, alpha=0.4, label=sample)
+            ax.scatter(log_Mstar[mask], Re[mask], color=pcolor, alpha=0.4, label=slabel)
             # profile plot of Mstar vs R_med
 
             result = binned_statistic(
@@ -71,7 +80,7 @@ def plot_generated_sizes(
             bin_edges = result.bin_edges
             bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
             ax.plot(
-                bin_centers, means, color=med_color, label=f"{sample} $\\bm{{R_e^{{med}} }}$", linewidth=3
+                bin_centers, means, color=med_color, label=f"{slabel} $\\bm{{R_e^{{med}} }}$", linewidth=3
             )
             for author in authors:
                 if ztitle not in data[author] and "z-values" not in val_info:
@@ -119,12 +128,17 @@ def plot_generated_sizes(
                                 linestyle="",
                                 marker=val_info[author]["marker"],
                             )
+        if data_fits is not None and fit_zvalue >= z_min and fit_zvalue < z_max:
+            for (k, v), f in zip(data_fits.items(), fit_colors):
+                if ignore_fit_key not in k:
+                    Mtest = np.logspace(7.5, 11.5, 8)
+                    ax.plot(np.log10(Mtest), fit_function(Mtest, *v), label=fit_label.format(k), color=f)
 
-            ax.legend(loc="best")
-            ax.set_title(ztitle)
-            ax.set_yscale(yscale)
-            ax.set_xlabel(val_info["xlabel"])
-            ax.set_ylabel(val_info["ylabel"])
+        ax.legend(loc="best", ncol=2)
+        ax.set_title(ztitle)
+        ax.set_yscale(yscale)
+        ax.set_xlabel(val_info["xlabel"])
+        ax.set_ylabel(val_info["ylabel"])
     short_titles = [val_info[author]["short_title"] for author in authors]
     author_list = "_".join(authors)
     title_list = "+".join(short_titles)
