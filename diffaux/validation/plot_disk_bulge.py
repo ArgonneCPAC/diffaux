@@ -192,6 +192,112 @@ def plot_q_with_cuts(
     return
 
 
+def plot_q_profiles_with_cuts(
+    ax_all,
+    q,
+    x,
+    slabel,
+    zvalues,
+    redshifts,
+    cut_array,
+    cuts,
+    bins,
+    dz=0.2,
+    cut_labels=("{{}} $\\leq$ {:.0f}", "{{}} $\\geq$ {:.0f}"),
+    colors=("r", "blue"),
+    cut_name="$\\log_{10}(sSFR/yr^{-1})$",
+    error=False,
+):
+    for ax, z in zip_longest(ax_all.flat, zvalues):
+        zmask = (z - dz <= redshifts) & (z + dz >= redshifts)
+        # apply row mask to arrays
+        q_z = q[:, zmask]
+        x_z = x[:, zmask]
+        cut_array_z = cut_array[:, zmask]
+        # print(cut_array_z.shape, q_z.shape)
+        for n, (cut, cut_label, color) in enumerate(zip(cuts, cut_labels, colors)):
+            cut_mask = (cut_array_z <= cut) if n == 0 else (cut_array_z >= cut)
+            label = cut_label.format(cut).format(cut_name)
+            # profile
+            xvals = x_z[cut_mask]
+            xmeans, _, _ = binned_statistic(xvals, xvals, bins=bins)
+            yvals = q_z[cut_mask]
+            ymeans, _, _ = binned_statistic(xvals, yvals, bins=bins)
+            std, _, _ = binned_statistic(xvals, yvals, bins=bins, statistic="std")
+            ax.plot(xmeans, ymeans, label=" ".join([label, slabel]), color=color)
+            if error:
+                ax.fill_between(xmeans, ymeans - std, ymeans + std, alpha=0.3, color=color)
+
+    return
+
+
+def plot_qs_profiles_with_cuts(
+    qs,
+    xs,
+    zvalues,
+    redshifts,
+    cut_arrays,
+    cuts,
+    slabels,
+    dz=0.1,
+    bin_lo=7.5,
+    bin_hi=12.0,
+    Nbins=18,
+    cut_labels=("{{}} $\\leq$ {:.0f}", "{{}} $\\geq$ {:.0f}"),
+    colors_list=(("orange", "cyan"), ("r", "blue")),
+    cut_name="$\\log_{10}(sSFR/yr^{-1})$",
+    plotdir="./",
+    plotsubdir="DiskBulge_Profiles",
+    pltname="BT_cut_on_{}.png",
+    yscale="",
+    xscale="log",
+    xlabel="$\\log_{10}(M^*/M_\\odot)$",
+    ylabel="B/T",
+    xname="log_sSFR",
+    lgnd_title="",
+    error=False,
+):
+    plotdir = os.path.join(plotdir, plotsubdir)
+    nrow, ncol = get_nrow_ncol(len(zvalues))
+    fig, ax_all = plt.subplots(nrow, ncol, figsize=(5 * ncol, 4 * nrow))
+
+    bins = np.logspace(bin_lo, bin_hi, Nbins + 1)
+    for q, x, cut_array, colors, slabel in zip(qs, xs, cut_arrays, colors_list, slabels):
+        plot_q_profiles_with_cuts(
+            ax_all,
+            q,
+            x,
+            slabel,
+            zvalues,
+            redshifts,
+            cut_array,
+            cuts,
+            bins,
+            dz=dz,
+            cut_labels=cut_labels,
+            colors=colors,
+            cut_name=cut_name,
+            error=error,
+        )
+
+    for ax, z in zip_longest(ax_all.flat, zvalues):
+        zlabel = f"${max(0., z-dz):.1f} \\leq z \\leq {z+dz:.1f}$"
+        if yscale == "log":
+            ax.set_yscale("log")
+        if xscale == "log":
+            ax.set_xscale("log")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.legend(loc="best", title=lgnd_title + zlabel)
+
+    fn = os.path.join(plotdir, pltname.format(xname))
+    plt.tight_layout()
+    print(f"Saving {fn}")
+    plt.savefig(fn)
+
+    return
+
+
 def plot_q1_q2(
     q1,
     q2,
@@ -215,6 +321,7 @@ def plot_q1_q2(
     plotdir="./",
     plotsubdir="DiskBulge_Histograms",
     lgnd_title="",
+    xlimits=None,
 ):
     plotdir = os.path.join(plotdir, plotsubdir)
     nrow, ncol = get_nrow_ncol(len(zvalues))
@@ -241,13 +348,18 @@ def plot_q1_q2(
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
-        ax.set_xlim(
-            max(np.min(bins), min(np.min(q1_z[cut_mask]), np.min(q1_z[cut_mask])) * 0.5),
-            min(np.max(bins), max(np.max(q1_z[cut_mask]), np.max(q1_z[cut_mask]))) * 2.0,
-        )
+        if xlimits is not None:
+            ax.set_xlim(xlimits)
+        else:
+            ax.set_xlim(
+                max(np.min(bins), min(np.min(q1_z[cut_mask]), np.min(q1_z[cut_mask]))),
+                min(np.max(bins), max(np.max(q1_z[cut_mask]), np.max(q1_z[cut_mask]))),
+            )
         ax.set_xlabel(xlabel)
         ax.set_ylabel("PDF")
-        ax.legend(loc="best", title="\n".join([zlabel, clabel]))
+        ltitle = "\n".join([zlabel, clabel])
+        ltitle = "\n".join([ltitle, lgnd_title]) if lgnd_title else ltitle
+        ax.legend(loc="best", title=ltitle)
 
     fn = os.path.join(plotdir, pltname.format(xname.format(cut_lo, cut_hi)))
     plt.tight_layout()
