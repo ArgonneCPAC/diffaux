@@ -19,6 +19,11 @@ This project was automatically generated using the LINCC-Frameworks
 A description of the data and methods used for writing the code in this repository
 can be found [here](https://docs.google.com/document/d/1NYZ8EAOqi89DrQoV9Oz1EI30lIsl56kHoXQ3qygtc74/edit?usp=sharing)
 
+Documentation for the code used to generate the galaxy size model can be found
+[here](https://docs.google.com/document/d/1NYZ8EAOqi89DrQoV9Oz1EI30lIsl56kHoXQ3qygtc74/edit?usp=sharing)
+
+Documentation for the code used to generate the disk-bulge decomposition can be found
+[here[(https://docs.google.com/document/d/1664LHkPow2wl8rEKda8m_qomO-i1XnnihesBAQN6Mec/edit?usp=sharing)
 
 ## Dev Guide - Getting Started
 
