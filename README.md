@@ -14,10 +14,7 @@ This project was automatically generated using the LINCC-Frameworks
 [python-project-template](https://github.com/lincc-frameworks/python-project-template).
 
 
-## Auxiliary Modeling for Galaxy Poperties
-
-A description of the data and methods used for writing the code in this repository
-can be found [here](https://docs.google.com/document/d/1NYZ8EAOqi89DrQoV9Oz1EI30lIsl56kHoXQ3qygtc74/edit?usp=sharing)
+### Auxiliary Modeling for Galaxy Poperties
 
 ## Galaxy Size Modeling
 Documentation for the code used to generate the galaxy size model can be found
