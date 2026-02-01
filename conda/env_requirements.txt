@@ -63,7 +63,7 @@ jupytext==1.16.3
 kiwisolver==1.4.5
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
-matplotlib==3.7.5
+matplotlib==3.10.8
 matplotlib-inline==0.2.1
 mdit-py-plugins==0.4.1
 mdurl==0.1.2
