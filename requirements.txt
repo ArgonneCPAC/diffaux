@@ -5,5 +5,5 @@ matplotlib
 jax
 dsps>=0.4.5
 diffstar>=0.3.4
-diffsky>=0.2.3
+diffsky>=0.3.4
 diffstarpop>=0.0.2
